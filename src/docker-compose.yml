@@ -1,0 +1,70 @@
+services:
+  # 1. Il Simulatore IoT fornito dal professore
+  mars-simulator:
+    image: mars-iot-simulator:multiarch_v1 # Assicurati di aver fatto il load dell'immagine
+    ports:
+      - "8080:8080"
+    networks:
+      - mars-network
+
+  # 2. Message Broker (Esempio: ActiveMQ)
+  message-broker:
+    image: rmohr/activemq:latest
+    ports:
+      - "61616:61616" # Porta per i client
+      - "8161:8161"   # Web console
+    networks:
+      - mars-network
+
+  # 3. Database per la persistenza delle regole (Esempio: PostgreSQL)
+  rule-database:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: mars_user
+      POSTGRES_PASSWORD: mars_password
+      POSTGRES_DB: rules_db
+    ports:
+      - "5432:5432"
+    networks:
+      - mars-network
+
+  # 4. Servizio di Ingestione (da costruire)
+  ingestion-service:
+    build: 
+      context: ./ingestion_service # Cerca il Dockerfile in questa cartella
+    depends_on:
+      - mars-simulator
+      - message-broker
+    networks:
+      - mars-network
+
+  # 5. Motore di Automazione (da costruire)
+  automation-engine:
+    build: 
+      context: ./automation_engine # Cerca il Dockerfile in questa cartella
+    depends_on:
+      - message-broker
+      - rule-database
+    networks:
+      - mars-network
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    depends_on:
+      - message-broker
+      - ingestion-service
+    networks:
+      - mars-network
+
+  dashboard:
+    build:
+      context: ./dashboard
+    depends_on:
+      - api-gateway
+    networks:
+      - mars-network
+
+networks:
+  mars-network:
+    driver: bridge
