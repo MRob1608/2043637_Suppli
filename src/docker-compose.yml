@@ -45,6 +45,8 @@ services:
   automation-engine:
     build: 
       context: ./automation_engine # Cerca il Dockerfile in questa cartella
+    ports:
+      - "6000:6000"
     depends_on:
       - message-broker
       - rule-database

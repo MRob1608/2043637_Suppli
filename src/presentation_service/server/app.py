@@ -48,10 +48,13 @@ def add_rule():
         "action": "add",
         "topic": sensor_name
     }
-    response = requests.post("http://automation-engine/update-rules", json=automation_data)
+    response = requests.post("http://automation-engine:6000/update-rules", json=automation_data)
 
     if response.ok:
         return {'ok': True}
+    else:
+        # Se l'engine fallisce, avvisa il frontend
+        return {'ok': False, 'error': 'Errore aggiornamento engine'}, 500
 
 @app.route("/update_rule", methods=["POST"])
 def update_rule():
