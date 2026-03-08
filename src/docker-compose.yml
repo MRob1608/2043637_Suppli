@@ -18,7 +18,8 @@ services:
 
   # 3. Database per la persistenza delle regole (Esempio: PostgreSQL)
   rule-database:
-    image: postgres:15
+    build: 
+      context: ./database # Cerca il Dockerfile in questa cartella
     environment:
       POSTGRES_USER: mars_user
       POSTGRES_PASSWORD: mars_password

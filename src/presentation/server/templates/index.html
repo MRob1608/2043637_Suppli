@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mars Mission Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../static/css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="logo">
+          <span class="logo-mark">⎈</span>
+          <span class="logo-text">MARS OPS</span>
+        </div>
+        <nav class="nav">
+          <button class="nav-item active" data-target="monitoring-section">
+            Monitoring
+          </button>
+          <button class="nav-item" data-target="control-section">
+            Control
+          </button>
+          <button class="nav-item" data-target="automation-section">
+            Automation
+          </button>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="connection-indicator">
+            <span class="connection-dot" id="connection-dot"></span>
+            <span id="connection-label">Realtime link</span>
+          </div>
+          <div class="mission-meta">
+            <div class="mission-label">Mission</div>
+            <div class="mission-name">Ares Habitat</div>
+            <div class="mission-time">
+              Sol <span id="mission-sol">0173</span> •
+              <span id="mission-time">00:00:00</span> UTC
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="top-bar">
+          <div>
+            <h1>Mars Mission Dashboard</h1>
+            <p>Realtime monitoring • Control • Automation rules</p>
+          </div>
+          <div class="top-bar-status">
+            <div class="status-pill status-nominal">NOMINAL</div>
+            <div class="status-pill status-radiation" id="radiation-pill">
+              RAD: LOW
+            </div>
+          </div>
+        </header>
+
+        <section class="section" id="monitoring-section">
+          <div class="section-header">
+            <h2>Area Monitoring</h2>
+            <p>Scalar sensors and live telemetry streams</p>
+          </div>
+
+          <div class="section-subtitle">Environment sensors</div>
+          <div id="scalar-sensors-grid" class="scalar-grid"></div>
+
+          <div class="section-subtitle">Telemetry streams</div>
+          <div id="telemetry-grid" class="telemetry-grid"></div>
+        </section>
+
+        <section class="section" id="control-section">
+          <div class="section-header">
+            <h2>Control Area</h2>
+            <p>Actuators and system switches</p>
+          </div>
+
+          <div id="actuator-grid" class="actuator-grid"></div>
+        </section>
+
+        <section class="section" id="automation-section">
+          <div class="section-header">
+            <h2>Automation Rules</h2>
+            <p>IF sensor THEN actuator logic</p>
+            <button id="add-rule-btn" class="primary-btn">+ New rule</button>
+          </div>
+
+          <div class="rules-wrapper">
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>Enabled</th>
+                  <th>Name</th>
+                  <th>Condition</th>
+                  <th>Action</th>
+                  <th>Priority</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="rules-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Rule modal -->
+    <div id="rule-modal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 id="rule-modal-title">New automation rule</h3>
+          <button id="rule-modal-close" class="icon-btn" aria-label="Close">
+            ✕
+          </button>
+        </div>
+        <form id="rule-form" class="modal-body">
+          <div class="form-row">
+            <label for="rule-name">Name</label>
+            <input
+              id="rule-name"
+              name="name"
+              type="text"
+              required
+              placeholder="Greenhouse cooling"
+            />
+          </div>
+          <div class="form-row inline">
+            <div>
+              <label for="rule-sensor">Sensor</label>
+              <select id="rule-sensor" name="sensorId" required></select>
+            </div>
+            <div>
+              <label for="rule-operator">Operator</label>
+              <select id="rule-operator" name="operator" required>
+                <option value=">">&gt;</option>
+                <option value=">=">&gt;=</option>
+                <option value="<">&lt;</option>
+                <option value="<=">&lt;=</option>
+                <option value="==">==</option>
+                <option value="!=">!=</option>
+              </select>
+            </div>
+            <div>
+              <label for="rule-threshold">Value</label>
+              <input
+                id="rule-threshold"
+                name="threshold"
+                type="number"
+                step="0.1"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-row inline">
+            <div>
+              <label for="rule-actuator">Actuator</label>
+              <select id="rule-actuator" name="actuatorId" required></select>
+            </div>
+            <div>
+              <label for="rule-actuator-state">State</label>
+              <select
+                id="rule-actuator-state"
+                name="actuatorState"
+                required
+              >
+                <option value="on">ON</option>
+                <option value="off">OFF</option>
+              </select>
+            </div>
+            <div>
+              <label for="rule-priority">Priority</label>
+              <input
+                id="rule-priority"
+                name="priority"
+                type="number"
+                min="1"
+                max="5"
+                value="3"
+              />
+            </div>
+          </div>
+
+          <div class="form-row checkbox-row">
+            <label>
+              <input
+                id="rule-enabled"
+                name="enabled"
+                type="checkbox"
+                checked
+              />
+              Enabled
+            </label>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" id="rule-cancel-btn" class="secondary-btn">
+              Cancel
+            </button>
+            <button type="submit" class="primary-btn">Save rule</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="../static/js/app.js"></script>
+  </body>
+</html>
+
