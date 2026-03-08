@@ -54,7 +54,7 @@ services:
   #6. Modulo Presentazione
   presentation-service:
     build:
-      context: ./presentation-service
+      context: ./presentation_service
     depends_on:
       - message-broker
       - ingestion-service
