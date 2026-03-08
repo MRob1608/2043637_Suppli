@@ -23,6 +23,8 @@ services:
       POSTGRES_USER: mars_user
       POSTGRES_PASSWORD: mars_password
       POSTGRES_DB: rules_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
@@ -64,6 +66,9 @@ services:
       - api-gateway
     networks:
       - mars-network
+
+volumes:
+  postgres_data:
 
 networks:
   mars-network:
