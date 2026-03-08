@@ -1,13 +1,8 @@
 {
-  "schema": "normalized.telemetry.v1",
-  "event_id": "string",
-  "topic": "string",
-  "timestamp": "date-time",
-  "source": {
-    "type": "sensor | telemetry",
-    "id": "string",
-    "location": "string"
-  },
+  "id": "string",
+  "source": "rest | telemetry",
+  "captured_at": "ISO_8601_timestamp",
+  "status": "ok | warning",
   "measurements": [
     {
       "metric": "string",
@@ -15,5 +10,6 @@
       "unit": "string"
     }
   ],
-  "status": "ok | warning"
+  "metadata": {},
+  "topic": "string"
 }
