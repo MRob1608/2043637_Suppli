@@ -713,7 +713,7 @@ select {
   overflow: hidden;
 }
 
-.actuator-log-12eader {
+.actuator-log-header {
   padding: 8px 12px;
   font-size: 10px;
   letter-spacing: 0.16em;
