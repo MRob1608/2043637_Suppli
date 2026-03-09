@@ -197,7 +197,7 @@ select {
   display: flex;
   flex-direction: column;
   padding: 28px 40px 32px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .top-bar {
@@ -255,7 +255,7 @@ select {
 }
 
 .section {
-  padding: 16px 0 4px;
+  padding: 16px 12px 12px;
   overflow: auto;
 }
 
@@ -307,7 +307,7 @@ select {
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, var(--bg-surface), var(--bg-surface-soft));
   border: 1px solid var(--border-subtle);
-  box-shadow: 0 10px 26px rgba(164, 119, 88, 0.2);
+  box-shadow: 0 0 10px rgba(164, 119, 88, 0.2);
   overflow: hidden;
   cursor: default;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast),
@@ -325,7 +325,7 @@ select {
 
 .scalar-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 36px rgba(164, 119, 88, 0.35);
+  box-shadow: 0 0 18px rgba(164, 119, 88, 0.35);
   border-color: rgba(232, 107, 58, 0.5);
 }
 
@@ -336,7 +336,7 @@ select {
 @keyframes scalar-warning-flash {
   0%,
   100% {
-    box-shadow: 0 10px 26px rgba(164, 119, 88, 0.2),
+    box-shadow: 0 0 20px rgba(164, 119, 88, 0.2),
       0 0 0 rgba(232, 107, 58, 0);
     background: linear-gradient(
         135deg,
@@ -345,7 +345,7 @@ select {
       );
   }
   50% {
-    box-shadow: 0 14px 32px rgba(232, 107, 58, 0.8),
+    box-shadow: 0 4px 24px rgba(232, 107, 58, 0.8),
       0 0 18px rgba(232, 107, 58, 0.7);
     background: radial-gradient(
         circle at 0 50%,
@@ -359,12 +359,13 @@ select {
 .scalar-card.warning {
   border-color: rgba(232, 107, 58, 0.9);
   animation: scalar-warning-flash 1.1s infinite alternate;
+  animation-delay: -0.55s;
 }
 
 @keyframes scalar-critical-flash {
   0%,
   100% {
-    box-shadow: 0 10px 26px rgba(164, 119, 88, 0.25),
+    box-shadow: 0 0 18px rgba(164, 119, 88, 0.25),
       0 0 0 rgba(230, 70, 85, 0);
     background: linear-gradient(
         135deg,
@@ -373,7 +374,7 @@ select {
       );
   }
   50% {
-    box-shadow: 0 14px 32px rgba(230, 70, 85, 0.85),
+    box-shadow: 0 4px 22px rgba(230, 70, 85, 0.85),
       0 0 20px rgba(230, 70, 85, 0.9);
     background: radial-gradient(
         circle at 0 50%,
@@ -386,7 +387,8 @@ select {
 
 .scalar-card.critical {
   border-color: rgba(230, 70, 85, 0.95);
-  animation: scalar-critical-flash 1s infinite alternate;
+  animation: scalar-critical-flash 1.1s infinite alternate;
+  animation-delay: -0.55s;
 }
 
 .scalar-header {
@@ -504,14 +506,14 @@ select {
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, var(--bg-surface), var(--bg-surface-soft));
   border: 1px solid var(--border-subtle);
-  box-shadow: 0 10px 26px rgba(164, 119, 88, 0.2);
+  box-shadow: 0 0 12px rgba(164, 119, 88, 0.2);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast),
     border-color var(--transition-fast);
 }
 
 .telemetry-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 36px rgba(164, 119, 88, 0.35);
+  box-shadow: 0 0 24px rgba(164, 119, 88, 0.35);
   border-color: rgba(232, 107, 58, 0.5);
 }
 
@@ -567,7 +569,7 @@ select {
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, var(--bg-surface), var(--bg-surface-soft));
   border: 1px solid var(--border-subtle);
-  box-shadow: 0 10px 26px rgba(164, 119, 88, 0.2);
+  box-shadow: 0 0 16px rgba(164, 119, 88, 0.2);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -578,7 +580,7 @@ select {
 
 .actuator-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 36px rgba(164, 119, 88, 0.35);
+  box-shadow: 0 0 20px rgba(164, 119, 88, 0.35);
   border-color: rgba(232, 107, 58, 0.7);
 }
 
@@ -619,7 +621,7 @@ select {
   color: var(--text-muted);
 }
 
-.actuator-mode.auto {
+.actuator-mode.aut2 {
   border-color: rgba(232, 107, 58, 0.6);
   color: var(--accent-orange);
 }
@@ -707,11 +709,11 @@ select {
   border-radius: var(--radius-lg);
   border: 1px solid rgba(164, 119, 88, 0.35);
   background: radial-gradient(circle at 0 0, #3b2a23, #211610);
-  box-shadow: 0 14px 32px rgba(164, 119, 88, 0.42);
+  box-shadow: 0 0 22px rgba(164, 119, 88, 0.42);
   overflow: hidden;
 }
 
-.actuator-log-header {
+.actuator-log-12eader {
   padding: 8px 12px;
   font-size: 10px;
   letter-spacing: 0.16em;
@@ -748,7 +750,7 @@ select {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
   background: linear-gradient(135deg, var(--bg-surface), var(--bg-surface-soft));
-  box-shadow: 0 14px 32px rgba(164, 119, 88, 0.28);
+  box-shadow: 0 0 16px rgba(164, 119, 88, 0.28);
   overflow: hidden;
 }
 
