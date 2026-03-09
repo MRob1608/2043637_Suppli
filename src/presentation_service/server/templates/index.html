@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Mars Mission Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="../static/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,7 +17,9 @@
     <div class="app-shell">
       <aside class="sidebar">
         <div class="logo">
-          <span class="logo-mark">⎈</span>
+          <span class="logo-mark">
+            <img src="../static/img/mars-logo.png" alt="Mars Ops logo" />
+          </span>
           <span class="logo-text">MARS OPS</span>
         </div>
         <nav class="nav">
@@ -80,6 +83,11 @@
           </div>
 
           <div id="actuator-grid" class="actuator-grid"></div>
+
+          <div class="actuator-log-container">
+            <div class="actuator-log-header">Actuator event log</div>
+            <div id="actuator-log" class="actuator-terminal"></div>
+          </div>
         </section>
 
         <section class="section" id="automation-section">

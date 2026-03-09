@@ -69,16 +69,21 @@ select {
 }
 
 .logo-mark {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  color: #050812;
   background: radial-gradient(circle at 20% 0, #f8f1e7, #e27b58);
   box-shadow: 0 0 18px rgba(226, 123, 88, 0.75);
+  overflow: hidden;
+}
+
+.logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .logo-text {
@@ -326,6 +331,34 @@ select {
 
 .scalar-card:hover::before {
   opacity: 1;
+}
+
+@keyframes scalar-critical-flash {
+  0%,
+  100% {
+    box-shadow: 0 10px 26px rgba(164, 119, 88, 0.2),
+      0 0 0 rgba(232, 107, 58, 0);
+    background: linear-gradient(
+        135deg,
+        var(--bg-surface),
+        var(--bg-surface-soft)
+      );
+  }
+  50% {
+    box-shadow: 0 14px 34px rgba(232, 107, 58, 0.8),
+      0 0 22px rgba(232, 107, 58, 0.8);
+    background: radial-gradient(
+        circle at 0 50%,
+        rgba(232, 107, 58, 0.26),
+        transparent 65%
+      ),
+      linear-gradient(135deg, #fff7ef, #f8f1e7);
+  }
+}
+
+.scalar-card.critical {
+  border-color: rgba(232, 107, 58, 0.9);
+  animation: scalar-critical-flash 1.1s infinite alternate;
 }
 
 .scalar-header {
@@ -637,6 +670,47 @@ select {
 .actuator-meta {
   font-size: 9px;
   color: var(--text-muted);
+}
+
+/* Actuator terminal log */
+
+.actuator-log-container {
+  margin-top: 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: radial-gradient(circle at 0 0, #3b3835, #111013);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+.actuator-log-header {
+  padding: 8px 12px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(90deg, #252525, #1a181a);
+}
+
+.actuator-terminal {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  max-height: 180px;
+  overflow-y: auto;
+  background: radial-gradient(circle at top, #242021, #100f10);
+  color: var(--accent-orange);
+}
+
+.actuator-terminal-line {
+  white-space: pre;
+}
+
+.actuator-terminal-line--faded {
+  opacity: 0.5;
 }
 
 /* Automation - rules */

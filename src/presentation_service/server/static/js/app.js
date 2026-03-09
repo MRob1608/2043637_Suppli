@@ -231,6 +231,9 @@ const actuators = [
   },
 ];
 
+const ACTUATOR_LOG_MAX_ENTRIES = 80;
+const actuatorLogEntries = [];
+
 let rules = [];
 
 // State for telemetry drawing
@@ -368,6 +371,8 @@ function updateScalarSensorsUI() {
     statusEl.classList.add(status);
     statusEl.textContent = status.toUpperCase();
 
+    card.classList.toggle("critical", status === "critical");
+
     // Update multi-metric values if present
     if (sensor.metrics && sensor.metrics.length && sensor.values) {
       sensor.metrics.forEach((m) => {
@@ -384,6 +389,38 @@ function updateScalarSensorsUI() {
       });
     }
   }
+}
+
+function appendActuatorLogEntry(actuatorId, state, source, ruleName) {
+  const container = document.getElementById("actuator-log");
+  if (!container) return;
+
+  const actuator = actuators.find((a) => a.id === actuatorId);
+  const label = actuator ? actuator.label : actuatorId;
+  const timestamp = formatTime(new Date());
+  const upperState = (state || "").toString().toUpperCase();
+
+  let originText = "manual";
+  if (source === "rule") {
+    originText = ruleName ? `rule: ${ruleName}` : "rule";
+  }
+
+  const line = `[${timestamp}] ${label} -> ${upperState} (${originText})`;
+
+  actuatorLogEntries.push(line);
+  if (actuatorLogEntries.length > ACTUATOR_LOG_MAX_ENTRIES) {
+    actuatorLogEntries.shift();
+  }
+
+  container.innerHTML = "";
+  actuatorLogEntries.forEach((entry, index) => {
+    const div = document.createElement("div");
+    div.className = "actuator-terminal-line" + (index < actuatorLogEntries.length - 20 ? " actuator-terminal-line--faded" : "");
+    div.textContent = entry;
+    container.appendChild(div);
+  });
+
+  container.scrollTop = container.scrollHeight;
 }
 
 function renderTelemetryCards() {
@@ -785,6 +822,7 @@ function applyAutomation() {
     if (actuator.status !== desired && actuator.mode === "auto") {
       actuator.status = desired;
       actuator.lastChangedAt = `${formatTime(new Date())} via ${rule.name}`;
+      appendActuatorLogEntry(actuator.id, desired === "on" ? "ON" : "OFF", "rule", rule.name);
     }
   }
 
@@ -1254,6 +1292,7 @@ function init() {
       item.status = state === "ON" ? "on" : "off";
       item.lastChangedAt = formatTime(new Date());
       updateActuatorsUI();
+      appendActuatorLogEntry(actuator, state, "manual", null);
     });
   }
 
