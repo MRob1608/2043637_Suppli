@@ -12,7 +12,7 @@ const scalarSensors = [
     warningHigh: 28,
     criticalLow: 15,
     criticalHigh: 32,
-    value: 24,
+    value: null,
   },
   {
     id: "entrance_humidity",
@@ -25,7 +25,7 @@ const scalarSensors = [
     warningHigh: 70,
     criticalLow: 10,
     criticalHigh: 90,
-    value: 40,
+    value: null,
   },
   {
     id: "co2_hall",
@@ -38,7 +38,7 @@ const scalarSensors = [
     warningHigh: 1200,
     criticalLow: 300,
     criticalHigh: 4000,
-    value: 600,
+    value: null,
   },
   {
     id: "hydroponic_ph",
@@ -51,7 +51,7 @@ const scalarSensors = [
     warningHigh: 7.0,
     criticalLow: 4.5,
     criticalHigh: 8.0,
-    value: 6.2,
+    value: null,
   },
   {
     id: "water_tank_level",
@@ -64,7 +64,7 @@ const scalarSensors = [
     warningHigh: 95,
     criticalLow: 10,
     criticalHigh: 100,
-    value: 72,
+    value: null,
   },
   {
     id: "corridor_pressure",
@@ -77,7 +77,7 @@ const scalarSensors = [
     warningHigh: 104,
     criticalLow: 88,
     criticalHigh: 108,
-    value: 98,
+    value: null,
   },
   {
     id: "air_quality_pm25",
@@ -90,7 +90,13 @@ const scalarSensors = [
     warningHigh: 55,
     criticalLow: 0,
     criticalHigh: 150,
-    value: 15,
+    value: null,
+    metrics: [
+      { key: "pm1", label: "PM1" },
+      { key: "pm25", label: "PM2.5" },
+      { key: "pm10", label: "PM10" },
+    ],
+    values: {},
   },
   {
     id: "air_quality_voc",
@@ -103,75 +109,92 @@ const scalarSensors = [
     warningHigh: 600,
     criticalLow: 0,
     criticalHigh: 1200,
-    value: 220,
+    value: null,
+    metrics: [
+      { key: "voc_ppb", label: "VOC ppb" },
+      { key: "voc_co2e_ppm", label: "CO₂eq ppm" },
+    ],
+    values: {},
   },
 ];
 
+// Telemetry streams: one graph per topic
 const telemetryStreams = [
   {
     id: "solar_array",
+    sensorId: "solar_array",
     topic: "mars/telemetry/solar_array",
-    label: "Solar Array Output",
+    label: "Solar Array",
     unit: "kW",
     color: "#47c3ff",
-    min: 0,
-    max: 40,
+    min: 120,
+    max: 140,
   },
   {
     id: "radiation",
+    sensorId: "radiation",
     topic: "mars/telemetry/radiation",
     label: "Radiation",
     unit: "µSv/h",
     color: "#ff4b6e",
     min: 0,
-    max: 800,
+    max: 1,
   },
   {
     id: "life_support",
+    sensorId: "life_support",
     topic: "mars/telemetry/life_support",
     label: "Life Support Load",
     unit: "%",
     color: "#5ff7b0",
-    min: 0,
-    max: 100,
+    min: 15,
+    max: 25,
   },
   {
     id: "thermal_loop",
+    sensorId: "thermal_loop",
     topic: "mars/telemetry/thermal_loop",
-    label: "Thermal Loop ΔT",
-    unit: "K",
+    label: "Thermal Loop",
+    unit: "°C",
     color: "#e27b58",
-    min: 0,
-    max: 40,
+    min: 40,
+    max: 50,
   },
   {
     id: "power_bus",
+    sensorId: "power_bus",
     topic: "mars/telemetry/power_bus",
     label: "Power Bus",
     unit: "kW",
     color: "#b987ff",
-    min: 0,
-    max: 60,
+    min: 30,
+    max: 100,
   },
   {
     id: "power_consumption",
+    sensorId: "power_consumption",
     topic: "mars/telemetry/power_consumption",
     label: "Power Consumption",
     unit: "kW",
     color: "#ffd86b",
-    min: 0,
-    max: 50,
+    min: 150,
+    max: 175,
   },
   {
     id: "airlock",
+    sensorId: "airlock",
     topic: "mars/telemetry/airlock",
     label: "Airlock Cycle",
     unit: "",
     color: "#5ff7b0",
     min: 0,
-    max: 1,
+    max: 10,
   },
 ];
+
+const telemetryTopics = new Set(
+  telemetryStreams.map((s) => s.sensorId)
+);
 
 const actuators = [
   {
@@ -183,85 +206,36 @@ const actuators = [
     lastChangedAt: null,
   },
   {
+    id: "entrance_humidifier",
+    label: "Entrance Humidifier",
+    icon: "💧",
+    status: "off",
+    mode: "auto",
+    lastChangedAt: null,
+  },
+  {
+    id: "hall_ventilation",
+    label: "Hall Ventilation",
+    icon: "🌀",
+    status: "off",
+    mode: "auto",
+    lastChangedAt: null,
+  },
+  {
     id: "habitat_heater",
     label: "Habitat Heater",
     icon: "🔥",
-    status: "on",
-    mode: "auto",
-    lastChangedAt: null,
-  },
-  {
-    id: "co2_scrubber",
-    label: "CO₂ Scrubber",
-    icon: "🧽",
-    status: "on",
-    mode: "auto",
-    lastChangedAt: null,
-  },
-  {
-    id: "hydroponic_pump",
-    label: "Hydroponic Pump",
-    icon: "💧",
-    status: "on",
-    mode: "auto",
-    lastChangedAt: null,
-  },
-  {
-    id: "airlock_inner",
-    label: "Airlock Inner Seal",
-    icon: "🚪",
-    status: "on",
-    mode: "manual",
-    lastChangedAt: null,
-  },
-  {
-    id: "airlock_outer",
-    label: "Airlock Outer Seal",
-    icon: "🛰️",
     status: "off",
-    mode: "manual",
+    mode: "auto",
     lastChangedAt: null,
   },
 ];
 
-let rules = [
-  {
-    id: "rule1",
-    name: "Cool greenhouse if hot",
-    sensorId: "greenhouse_temperature",
-    operator: ">",
-    threshold: 27,
-    actuatorId: "cooling_fan",
-    actuatorState: "on",
-    enabled: true,
-    priority: 1,
-  },
-  {
-    id: "rule2",
-    name: "Reduce CO₂",
-    sensorId: "co2_hall",
-    operator: ">",
-    threshold: 1200,
-    actuatorId: "co2_scrubber",
-    actuatorState: "on",
-    enabled: true,
-    priority: 2,
-  },
-  {
-    id: "rule3",
-    name: "Secure airlock on radiation spike",
-    sensorId: "air_quality_voc",
-    operator: ">",
-    threshold: 1000,
-    actuatorId: "airlock_outer",
-    actuatorState: "off",
-    enabled: false,
-    priority: 3,
-  },
-];
+let rules = [];
 
 // State for telemetry drawing
 const telemetryState = {};
+let latestRadiationValue = null;
 
 // Utilities
 
@@ -351,6 +325,28 @@ function renderScalarSensors() {
 
     card.appendChild(header);
     card.appendChild(valueRow);
+
+    // For multi-metric sensors, render additional metric values
+    if (sensor.metrics && sensor.metrics.length) {
+      const metricsContainer = document.createElement("div");
+      metricsContainer.className = "scalar-metrics";
+      sensor.metrics.forEach((m) => {
+        const row = document.createElement("div");
+        row.className = "scalar-metric-row";
+        row.dataset.metricKey = m.key;
+        const label = document.createElement("span");
+        label.className = "scalar-metric-label";
+        label.textContent = m.label;
+        const value = document.createElement("span");
+        value.className = "scalar-metric-value";
+        value.textContent = "–";
+        row.appendChild(label);
+        row.appendChild(value);
+        metricsContainer.appendChild(row);
+      });
+      card.appendChild(metricsContainer);
+    }
+
     card.appendChild(meta);
     grid.appendChild(card);
   }
@@ -371,6 +367,22 @@ function updateScalarSensorsUI() {
     statusEl.classList.remove("ok", "warning", "critical");
     statusEl.classList.add(status);
     statusEl.textContent = status.toUpperCase();
+
+    // Update multi-metric values if present
+    if (sensor.metrics && sensor.metrics.length && sensor.values) {
+      sensor.metrics.forEach((m) => {
+        const row = card.querySelector(
+          `.scalar-metric-row[data-metric-key="${m.key}"]`
+        );
+        if (row) {
+          const valueSpan = row.querySelector(".scalar-metric-value");
+          if (valueSpan) {
+            const v = sensor.values[m.key];
+            valueSpan.textContent = formatValue(v);
+          }
+        }
+      });
+    }
   }
 }
 
@@ -419,7 +431,7 @@ function renderTelemetryCards() {
     const canvas = document.createElement("canvas");
     canvas.className = "telemetry-canvas";
     canvas.width = 320;
-    canvas.height = 80;
+    canvas.height = 110;
     wrapper.appendChild(canvas);
 
     card.appendChild(header);
@@ -431,7 +443,7 @@ function renderTelemetryCards() {
       ctx: canvas.getContext("2d"),
       points: [],
       maxPoints: 60,
-      lastValue: (stream.min + stream.max) / 2,
+      lastValue: 0,
     };
   }
 }
@@ -553,9 +565,7 @@ function renderRules() {
   const sensorMap = new Map(scalarSensors.map((s) => [s.id, s]));
   const actuatorMap = new Map(actuators.map((a) => [a.id, a]));
 
-  const sortedRules = [...rules].sort((a, b) => a.priority - b.priority);
-
-  for (const rule of sortedRules) {
+  for (const rule of rules) {
     const tr = document.createElement("tr");
     tr.className = "rules-row";
     if (!rule.enabled) tr.classList.add("disabled");
@@ -591,16 +601,6 @@ function renderRules() {
     actionTd.className = "rule-action";
     actionTd.textContent = actionText;
 
-    const priorityTd = document.createElement("td");
-    const priority = document.createElement("div");
-    priority.className = "rule-priority" + (rule.priority <= 1 ? " rule-priority--high" : "");
-    const dot = document.createElement("span");
-    const text = document.createElement("span");
-    text.textContent = `P${rule.priority}`;
-    priority.appendChild(dot);
-    priority.appendChild(text);
-    priorityTd.appendChild(priority);
-
     const actionsTd = document.createElement("td");
     actionsTd.className = "rule-actions";
     const editBtn = document.createElement("button");
@@ -631,62 +631,52 @@ function renderRules() {
     tr.appendChild(nameTd);
     tr.appendChild(condTd);
     tr.appendChild(actionTd);
-    tr.appendChild(priorityTd);
     tr.appendChild(actionsTd);
 
     tbody.appendChild(tr);
   }
 }
 
+async function loadRules() {
+  try {
+    const res = await fetch("/rules");
+    if (!res.ok) {
+      throw new Error(`Failed to fetch rules: ${res.status}`);
+    }
+    const rows = await res.json();
+    rules = rows.map((row) => {
+      const [
+        id,
+        name,
+        sensor_name,
+        operator,
+        threshold_value,
+        unit,
+        actuator_name,
+        actuator_state,
+        enabled,
+      ] = row;
+      return {
+        id,
+        name: name || "",
+        sensorId: sensor_name,
+        operator,
+        threshold: threshold_value,
+        unit,
+        actuatorId: actuator_name,
+        actuatorState: (actuator_state || "").toLowerCase(),
+        enabled: !!enabled,
+      };
+    });
+    renderRules();
+  } catch (err) {
+    console.error("Error loading rules", err);
+  }
+}
+
 // Telemetry update & drawing
 
-function updateTelemetry() {
-  for (const stream of telemetryStreams) {
-    const state = telemetryState[stream.id];
-    if (!state || !state.ctx) continue;
-
-    // generate pseudo-random but smooth series
-    let base;
-    if (stream.id === "solar_array") {
-      const now = new Date();
-      const hour = now.getUTCHours();
-      const dayFactor = Math.max(0, Math.sin(((hour - 6) / 12) * Math.PI)); // 0 at "night"
-      base = (stream.max - stream.min) * dayFactor * 0.9;
-    } else if (stream.id === "radiation") {
-      base = (stream.min + stream.max) / 2;
-      if (Math.random() < 0.02) {
-        base = stream.max * 0.9;
-      }
-    } else {
-      base = (stream.min + stream.max) / 2;
-    }
-
-    const jitterSpan = (stream.max - stream.min) * 0.12;
-    const next = randomJitter(base, jitterSpan, stream.min, stream.max);
-    state.lastValue = next;
-    state.points.push(next);
-    if (state.points.length > state.maxPoints) {
-      state.points.shift();
-    }
-
-    drawTelemetryStream(stream, state);
-
-    const card = document.querySelector(
-      `.telemetry-card[data-stream-id="${stream.id}"]`
-    );
-    if (card) {
-      const valueEl = card.querySelector('[data-role="telemetry-value"]');
-      if (valueEl) {
-        valueEl.textContent = `${formatValue(
-          next,
-          stream.unit && stream.unit.includes("ppm") ? 0 : 1
-        )} ${stream.unit}`;
-      }
-    }
-  }
-
-  updateRadiationPill();
-}
+// I valori telemetry sono ora aggiornati solo via websocket.
 
 function drawTelemetryStream(stream, state) {
   const { canvas, ctx, points } = state;
@@ -742,11 +732,8 @@ function drawTelemetryStream(stream, state) {
 }
 
 function updateRadiationPill() {
-  const stream = telemetryStreams.find((t) => t.id === "radiation");
-  if (!stream) return;
-  const state = telemetryState[stream.id];
-  if (!state) return;
-  const value = state.lastValue ?? (stream.min + stream.max) / 2;
+  const value = latestRadiationValue;
+  if (value == null) return;
 
   const pill = document.getElementById("radiation-pill");
   if (!pill) return;
@@ -763,18 +750,31 @@ function updateRadiationPill() {
 function toggleActuator(actuatorId) {
   const actuator = actuators.find((a) => a.id === actuatorId);
   if (!actuator) return;
-  actuator.status = actuator.status === "on" ? "off" : "on";
-  actuator.lastChangedAt = formatTime(new Date());
-  updateActuatorsUI();
+  const desiredState = actuator.status === "on" ? "OFF" : "ON";
+
+  fetch("/switch_actuator", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ actuator: actuatorId, state: desiredState }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (!data.ok) {
+        console.error("Failed to switch actuator", data);
+      }
+    })
+    .catch((err) => {
+      console.error("Error switching actuator", err);
+    });
 }
 
 function applyAutomation() {
   const sensorMap = new Map(scalarSensors.map((s) => [s.id, s]));
-  const sortedRules = rules
-    .filter((r) => r.enabled)
-    .sort((a, b) => a.priority - b.priority);
+  const activeRules = rules.filter((r) => r.enabled);
 
-  for (const rule of sortedRules) {
+  for (const rule of activeRules) {
     const sensor = sensorMap.get(rule.sensorId);
     if (!sensor) continue;
     if (!evaluateRuleCondition(rule, sensor.value)) continue;
@@ -817,13 +817,62 @@ function evaluateRuleCondition(rule, value) {
 function toggleRuleEnabled(ruleId) {
   const rule = rules.find((r) => r.id === ruleId);
   if (!rule) return;
-  rule.enabled = !rule.enabled;
-  renderRules();
+  const sensor = scalarSensors.find((s) => s.id === rule.sensorId);
+  const unit = rule.unit || (sensor && sensor.unit) || "";
+  const payload = {
+    id: rule.id,
+    name: rule.name || "",
+    sensor_name: rule.sensorId,
+    operator: rule.operator,
+    threshold_value: rule.threshold,
+    unit,
+    actuator_name: rule.actuatorId,
+    actuator_state: rule.actuatorState.toUpperCase(),
+    enabled: !rule.enabled,
+  };
+
+  fetch("/update_rule", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.ok) {
+        loadRules();
+      } else {
+        console.error("Failed to toggle rule", data);
+      }
+    })
+    .catch((err) => {
+      console.error("Error toggling rule", err);
+    });
 }
 
 function deleteRule(ruleId) {
-  rules = rules.filter((r) => r.id !== ruleId);
-  renderRules();
+  const rule = rules.find((r) => r.id === ruleId);
+  if (!rule) return;
+
+  fetch("/delete_rule", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id: rule.id }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.ok) {
+        loadRules();
+      } else {
+        console.error("Failed to delete rule", data);
+      }
+    })
+    .catch((err) => {
+      console.error("Error deleting rule", err);
+    });
 }
 
 function openRuleModal(ruleId) {
@@ -835,8 +884,9 @@ function openRuleModal(ruleId) {
   const thresholdInput = document.getElementById("rule-threshold");
   const actuatorSelect = document.getElementById("rule-actuator");
   const actuatorStateSelect = document.getElementById("rule-actuator-state");
-  const priorityInput = document.getElementById("rule-priority");
   const enabledCheckbox = document.getElementById("rule-enabled");
+  const saveBtn = document.getElementById("rule-save-btn");
+  const updateBtn = document.getElementById("rule-update-btn");
 
   modal.dataset.editingRuleId = ruleId || "";
 
@@ -850,8 +900,11 @@ function openRuleModal(ruleId) {
     thresholdInput.value = rule.threshold;
     actuatorSelect.value = rule.actuatorId;
     actuatorStateSelect.value = rule.actuatorState;
-    priorityInput.value = rule.priority;
     enabledCheckbox.checked = rule.enabled;
+    if (saveBtn && updateBtn) {
+      saveBtn.classList.add("hidden");
+      updateBtn.classList.remove("hidden");
+    }
   } else {
     title.textContent = "New automation rule";
     nameInput.value = "";
@@ -860,8 +913,11 @@ function openRuleModal(ruleId) {
     thresholdInput.value = "";
     actuatorSelect.selectedIndex = 0;
     actuatorStateSelect.value = "on";
-    priorityInput.value = 3;
     enabledCheckbox.checked = true;
+    if (saveBtn && updateBtn) {
+      saveBtn.classList.remove("hidden");
+      updateBtn.classList.add("hidden");
+    }
   }
 
   modal.classList.remove("hidden");
@@ -879,49 +935,114 @@ function handleRuleFormSubmit(event) {
   const editingId = modal.dataset.editingRuleId || null;
 
   const formData = new FormData(form);
-  const name = formData.get("name").trim();
+  const name = (formData.get("name") || "").trim();
   const sensorId = formData.get("sensorId");
   const operator = formData.get("operator");
   const threshold = Number(formData.get("threshold"));
   const actuatorId = formData.get("actuatorId");
   const actuatorState = formData.get("actuatorState");
-  const priority = Number(formData.get("priority") || 3);
   const enabled = document.getElementById("rule-enabled").checked;
 
-  if (!name || !sensorId || !actuatorId || !Number.isFinite(threshold)) {
+  // Se stiamo editando, questo submit non fa nulla: l'update usa il pulsante dedicato.
+  if (editingId) {
     return;
   }
 
-  if (editingId) {
-    const rule = rules.find((r) => r.id === editingId);
-    if (!rule) return;
-    rule.name = name;
-    rule.sensorId = sensorId;
-    rule.operator = operator;
-    rule.threshold = threshold;
-    rule.actuatorId = actuatorId;
-    rule.actuatorState = actuatorState;
-    rule.priority = priority;
-    rule.enabled = enabled;
-  } else {
-    const id = `rule_${Date.now().toString(36)}_${Math.random()
-      .toString(36)
-      .slice(2, 6)}`;
-    rules.push({
-      id,
-      name,
-      sensorId,
-      operator,
-      threshold,
-      actuatorId,
-      actuatorState,
-      enabled,
-      priority: priority || 3,
-    });
+  if (!sensorId || !actuatorId || !Number.isFinite(threshold)) {
+    return;
   }
 
-  renderRules();
-  closeRuleModal();
+  const sensor = scalarSensors.find((s) => s.id === sensorId);
+  const unit = sensor ? sensor.unit : "";
+
+  const payload = {
+    name,
+    sensor_name: sensorId,
+    operator,
+    threshold_value: threshold,
+    unit,
+    actuator_name: actuatorId,
+    actuator_state: actuatorState.toUpperCase(),
+    enabled,
+  };
+
+  fetch("/add_rule", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.ok) {
+        closeRuleModal();
+        loadRules();
+      } else {
+        console.error("Failed to add rule", data);
+      }
+    })
+    .catch((err) => {
+      console.error("Error adding rule", err);
+    });
+}
+
+function handleRuleUpdateClick() {
+  const modal = document.getElementById("rule-modal");
+  const editingId = modal.dataset.editingRuleId || null;
+  if (!editingId) return;
+
+  const form = document.getElementById("rule-form");
+  const formData = new FormData(form);
+  const name = (formData.get("name") || "").trim();
+  const sensorId = formData.get("sensorId");
+  const operator = formData.get("operator");
+  const threshold = Number(formData.get("threshold"));
+  const actuatorId = formData.get("actuatorId");
+  const actuatorState = formData.get("actuatorState");
+  const enabled = document.getElementById("rule-enabled").checked;
+
+  if (!sensorId || !actuatorId || !Number.isFinite(threshold)) {
+    return;
+  }
+
+  const sensor = scalarSensors.find((s) => s.id === sensorId);
+  const unit = sensor ? sensor.unit : "";
+
+  const rule = rules.find((r) => r.id === editingId);
+  if (!rule) return;
+
+  const payload = {
+    id: rule.id,
+    name,
+    sensor_name: sensorId,
+    operator,
+    threshold_value: threshold,
+    unit,
+    actuator_name: actuatorId,
+    actuator_state: actuatorState.toUpperCase(),
+    enabled,
+  };
+
+  fetch("/update_rule", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.ok) {
+        closeRuleModal();
+        loadRules();
+      } else {
+        console.error("Failed to update rule", data);
+      }
+    })
+    .catch((err) => {
+      console.error("Error updating rule", err);
+    });
 }
 
 // Navigation
@@ -983,16 +1104,11 @@ function simulateConnectionIndicator() {
 // Sensor updates + automation loop
 
 function updateSensors() {
-  for (const sensor of scalarSensors) {
-    const span = (sensor.max - sensor.min) * 0.1 || 1;
-    sensor.value = randomJitter(sensor.value, span, sensor.min, sensor.max);
-  }
-  updateScalarSensorsUI();
+  // Values are now driven by realtime websocket updates from the backend.
 }
 
 function mainLoop() {
-  updateSensors();
-  updateTelemetry();
+  // Frontend automation is kept for local visualisation only.
   applyAutomation();
 }
 
@@ -1026,11 +1142,15 @@ function setupRuleModalEvents() {
   const cancelBtn = document.getElementById("rule-cancel-btn");
   const form = document.getElementById("rule-form");
   const backdrop = document.querySelector("#rule-modal .modal-backdrop");
+  const updateBtn = document.getElementById("rule-update-btn");
 
   closeBtn.addEventListener("click", closeRuleModal);
   cancelBtn.addEventListener("click", closeRuleModal);
   backdrop.addEventListener("click", closeRuleModal);
   form.addEventListener("submit", handleRuleFormSubmit);
+  if (updateBtn) {
+    updateBtn.addEventListener("click", handleRuleUpdateClick);
+  }
 
   document.getElementById("add-rule-btn").addEventListener("click", () =>
     openRuleModal(null)
@@ -1041,68 +1161,100 @@ function init() {
   renderScalarSensors();
   renderTelemetryCards();
   renderActuators();
-  renderRules();
-
   populateRuleFormOptions();
   setupRuleModalEvents();
   setupNav();
   startMissionClock();
   simulateConnectionIndicator();
 
-  // kick off telemetry state with a few points
-  updateTelemetry();
+  // WebSocket / Socket.IO realtime connection
+  if (typeof io === "function") {
+    const socket = io();
 
+    socket.on("sensor_update", (payload) => {
+      const { sensor, measurements } = payload || {};
+      if (!sensor || !Array.isArray(measurements)) return;
+
+      // Scalar sensors
+      const scalar = scalarSensors.find((s) => s.id === sensor);
+      if (scalar) {
+        const first = measurements[0];
+        if (scalar.metrics && scalar.metrics.length) {
+          scalar.values = scalar.values || {};
+          measurements.forEach((m) => {
+            if (!m || typeof m.metric !== "string") return;
+            scalar.values[m.metric] = m.value;
+          });
+          const primaryKey = scalar.metrics[0].key;
+          scalar.value = scalar.values[primaryKey];
+        } else if (first) {
+          scalar.value = first.value;
+          if (first.unit) {
+            scalar.unit = first.unit;
+          }
+        }
+        updateScalarSensorsUI();
+      }
+
+      // Telemetry streams: one graph per topic
+      if (telemetryTopics.has(sensor)) {
+        const stream = telemetryStreams.find((s) => s.sensorId === sensor);
+        if (stream) {
+          const state = telemetryState[stream.id];
+          if (state) {
+            const m = measurements[0];
+            if (m && typeof m.value !== "undefined") {
+              const raw = Number(m.value);
+              if (Number.isFinite(raw)) {
+                const clamped = Math.min(Math.max(raw, stream.min), stream.max);
+                state.lastValue = clamped;
+                state.points.push(clamped);
+                if (state.points.length > state.maxPoints) {
+                  state.points.shift();
+                }
+                drawTelemetryStream(stream, state);
+
+                const card = document.querySelector(
+                  `.telemetry-card[data-stream-id="${stream.id}"]`
+                );
+                if (card) {
+                  const valueEl = card.querySelector(
+                    '[data-role="telemetry-value"]'
+                  );
+                  if (valueEl) {
+                    valueEl.textContent = `${formatValue(clamped)} ${stream.unit}`;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        if (sensor === "radiation") {
+          const first = measurements[0];
+          if (first && Number.isFinite(Number(first.value))) {
+            latestRadiationValue = Number(first.value);
+            updateRadiationPill();
+          }
+        }
+      }
+    });
+
+    socket.on("actuator_switch", (payload) => {
+      const { actuator, state } = payload || {};
+      if (!actuator) return;
+      const item = actuators.find((a) => a.id === actuator);
+      if (!item) return;
+      item.status = state === "ON" ? "on" : "off";
+      item.lastChangedAt = formatTime(new Date());
+      updateActuatorsUI();
+    });
+  }
+
+  loadRules();
   setInterval(mainLoop, 1500);
 }
 
 window.addEventListener("DOMContentLoaded", init);
 
-
-////// 
-
-function closeRuleModal() {
-  document.getElementById("rule-modal").classList.add("hidden");
-  document.getElementById("rule-form").reset();
-}
-
-const ruleForm = document.getElementById("rule-form");
-
-ruleForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const data = {
-    //name: document.getElementById("rule-name").value,
-    sensor_name: document.getElementById("rule-sensor").value,
-    operator: document.getElementById("rule-operator").value,
-    threshold_value: parseFloat(document.getElementById("rule-threshold").value),
-    unit: scalarSensors.find(s => s.id === document.getElementById("rule-sensor").value)?.unit || "",
-    actuator_name: document.getElementById("rule-actuator").value,
-    actuator_state: document.getElementById("rule-actuator-state").value.toUpperCase(),
-    //priority: parseInt(document.getElementById("rule-priority").value),
-    enabled: document.getElementById("rule-enabled").checked
-  };
-
-  fetch("/add_rule", {
-    method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.ok) {
-          console.log("Rule saved successfully");
-
-          closeRuleModal();
-
-          // loadRules(); // ricarica la tabella
-          // renderRules();
-
-          return;
-        } else {
-          console.error("Failed to save rule");
-        }
-      })
-});
 

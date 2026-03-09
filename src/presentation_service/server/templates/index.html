@@ -97,7 +97,6 @@
                   <th>Name</th>
                   <th>Condition</th>
                   <th>Action</th>
-                  <th>Priority</th>
                   <th></th>
                 </tr>
               </thead>
@@ -173,17 +172,6 @@
                 <option value="off">OFF</option>
               </select>
             </div>
-            <div>
-              <label for="rule-priority">Priority</label>
-              <input
-                id="rule-priority"
-                name="priority"
-                type="number"
-                min="1"
-                max="5"
-                value="3"
-              />
-            </div>
           </div>
 
           <div class="form-row checkbox-row">
@@ -202,12 +190,18 @@
             <button type="button" id="rule-cancel-btn" class="secondary-btn">
               Cancel
             </button>
-            <button type="submit" class="primary-btn">Save rule</button>
+            <button type="submit" id="rule-save-btn" class="primary-btn">
+              Save rule
+            </button>
+            <button type="button" id="rule-update-btn" class="primary-btn hidden">
+              Update rule
+            </button>
           </div>
         </form>
       </div>
     </div>
 
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" crossorigin="anonymous"></script>
     <script src="../static/js/app.js"></script>
   </body>
 </html>

@@ -62,9 +62,9 @@ def sync_rules_on_startup():
         
         raw_data = response.json()  
         
-        # Estrae i topic (colonna 1) dal database. 
+        # Estrae i topic (colonna sensor_name) dal database (indice 2).
         # Il set() serve a rimuovere i duplicati prima di convertirli di nuovo in una lista.
-        topics = list(set([row[1] for row in raw_data if len(row) > 1]))
+        topics = list(set([row[2] for row in raw_data if len(row) > 2]))
 
         print(f"initial topics: {topics}", file=sys.stderr, flush=True)
         
@@ -105,17 +105,17 @@ def process_message(ch, method, properties, body):
 
             for rule_row in rules:
                 # 🎯 Mappatura esatta sulla tua tabella SQL:
-                # 0:id, 1:sensor_name, 2:operator, 3:threshold, 4:unit, 
-                # 5:actuator_name, 6:actuator_state, 7:enabled, 8:created_at
+                # 0:id, 1:name, 2:sensor_name, 3:operator, 4:threshold_value, 5:unit, 
+                # 6:actuator_name, 7:actuator_state, 8:enabled, 9:created_at
                 
-                rule_enabled = rule_row[7]
+                rule_enabled = rule_row[8]
                 if not rule_enabled:
                     continue # Salta subito le regole disattivate (geniale averlo nel DB!)
 
-                rule_op_str = rule_row[2]            # es: ">"
-                rule_threshold = float(rule_row[3])  # es: 30.0
-                actuator_name = rule_row[5]          # es: "fan_01"
-                actuator_state = rule_row[6]         # es: "ON"
+                rule_op_str = rule_row[3]            # es: ">"
+                rule_threshold = float(rule_row[4])  # es: 30.0
+                actuator_name = rule_row[6]          # es: "fan_01"
+                actuator_state = rule_row[7]         # es: "ON"
                 
                 # Prende la funzione matematica corrispondente all'operatore
                 op_func = OPERATORI_MAP.get(rule_op_str)

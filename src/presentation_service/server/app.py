@@ -29,6 +29,7 @@ def add_rule():
     cur = conn.cursor()
 
     data = request.json
+    name = data.get("name", "")
     sensor_name = data["sensor_name"]
     operator = data["operator"]
     threshold_value = data["threshold_value"]
@@ -36,9 +37,13 @@ def add_rule():
     actuator_name = data["actuator_name"]
     actuator_state = data["actuator_state"]
     enabled = data["enabled"]
-    tuple = f"""'{sensor_name}', '{operator}', {threshold_value}, '{unit}', '{actuator_name}', '{actuator_state}', {enabled}"""
+    tuple = f"""'{name}', '{sensor_name}', '{operator}', {threshold_value}, '{unit}', '{actuator_name}', '{actuator_state}', {enabled}"""
 
-    cur.execute(f"""insert into rules (sensor_name, operator, threshold_value, unit, actuator_name, actuator_state, enabled) values ({tuple});""")
+    cur.execute(
+        """INSERT INTO rules (name, sensor_name, operator, threshold_value, unit, actuator_name, actuator_state, enabled) 
+           VALUES (%s, %s, %s, %s, %s, %s, %s, %s);""",
+        (name, sensor_name, operator, threshold_value, unit, actuator_name, actuator_state, enabled),
+    )
     conn.commit()
 
     cur.close()
@@ -63,6 +68,7 @@ def update_rule():
 
     data = request.json
     id = data["id"]
+    name = data.get("name", "")
     sensor_name = data["sensor_name"]
     operator = data["operator"]
     threshold_value = data["threshold_value"]
@@ -70,15 +76,20 @@ def update_rule():
     actuator_name = data["actuator_name"]
     actuator_state = data["actuator_state"]
     enabled = data["enabled"]
-    update_query = f"""sensor_name='{sensor_name}', 
-                       operator='{operator}', 
-                       threshold_value={threshold_value}, 
-                       unit='{unit}', 
-                       actuator_name='{actuator_name}', 
-                       actuator_state='{actuator_state}', 
-                       enabled={enabled}"""
 
-    cur.execute(f"""update rules set {update_query} where id={id};""")
+    cur.execute(
+        """UPDATE rules 
+           SET name=%s,
+               sensor_name=%s,
+               operator=%s,
+               threshold_value=%s,
+               unit=%s,
+               actuator_name=%s,
+               actuator_state=%s,
+               enabled=%s
+           WHERE id=%s;""",
+        (name, sensor_name, operator, threshold_value, unit, actuator_name, actuator_state, enabled, id),
+    )
     conn.commit()
 
     cur.close()
@@ -145,8 +156,8 @@ def switch_actuator():
         )
 
         if response.ok:
-            # Notifichiamo il frontend
-            socketio.emit("actuator_switch", {"state": state})
+            # Notifichiamo il frontend, includendo quale attuatore è cambiato
+            socketio.emit("actuator_switch", {"actuator": actuator, "state": state})
             return jsonify({'ok': True})
         else:
             print(f"Errore dal simulatore: {response.text}", flush=True)

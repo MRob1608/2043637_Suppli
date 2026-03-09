@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS rules (
     id SERIAL PRIMARY KEY,
+    name TEXT,
     sensor_name TEXT NOT NULL,
     operator TEXT NOT NULL,
     threshold_value DOUBLE PRECISION NOT NULL,
