@@ -108,7 +108,11 @@ def get_rule():
     cur = conn.cursor()
 
     data = request.json
+
     sensor_name = data["sensor_name"]
+
+    sensor_name = data.get("sensor_name") if data else None
+
 
     cur.execute(f"""select * from rules where sensor_name='{sensor_name}';""")
     rows = cur.fetchall()
@@ -118,17 +122,38 @@ def get_rule():
 
     return jsonify(rows)
 
+from flask import jsonify # Assicurati che sia importato in alto
+
+from flask import jsonify, request
+
 @app.route("/switch_actuator", methods=["POST"])
 def switch_actuator():
     data = request.json
-    actuator = data["actuator"]
-    state = data["state"] # State deve essere "ON" o "OFF"
+    actuator = data.get("actuator")
+    state = data.get("state") # "ON" o "OFF"
 
-    response = requests.post(f"http://mars-simulator:8080/api/actuators/{actuator}", json=state)
+    if not actuator or not state:
+        return jsonify({"error": "Parametri 'actuator' o 'state' mancanti"}), 400
 
-    if response.ok:
-        socketio.emit("actuator_switch", {"state": state})
-        return {'ok': True}
+    try:
+        # LA MODIFICA È QUI: passiamo un dizionario {"state": state}
+        payload = {"state": state}
+        response = requests.post(
+            f"http://mars-simulator:8080/api/actuators/{actuator}", 
+            json=payload, 
+            timeout=5
+        )
+
+        if response.ok:
+            # Notifichiamo il frontend
+            socketio.emit("actuator_switch", {"state": state})
+            return jsonify({'ok': True})
+        else:
+            print(f"Errore dal simulatore: {response.text}", flush=True)
+            return jsonify({'ok': False, 'error': f"Errore {response.status_code}"}), response.status_code
+
+    except requests.exceptions.RequestException as e:
+        return jsonify({'ok': False, 'error': f"Connessione fallita: {e}"}), 503
 
 
 if __name__ == "__main__":

@@ -4,13 +4,25 @@ import threading
 import requests
 from flask import Flask, request
 import time
+import operator
+import sys
 
 app = Flask(__name__)
 
 # --- Configurazione ---
 RABBIT_HOST = 'message-broker'
 EXCHANGE_NAME = 'exchange_data'
-BACKEND_URL = "http://backend-service:5000/api/actuators"
+RULES_API_URL = "http://presentation-service:5050/get_rule"
+
+OPERATORI_MAP = {
+    '>': operator.gt,   # Greater Than
+    '<': operator.lt,   # Less Than
+    '>=': operator.ge,  # Greater or Equal
+    '<=': operator.le,  # Less or Equal
+    '=': operator.eq,   # Equal
+    '==': operator.eq,
+    '!=': operator.ne   # Not Equal
+}
 
 # Variabili globali per RabbitMQ
 connection = None
@@ -45,10 +57,16 @@ def sync_rules_on_startup():
     try:
         # Chiamata al backend per ottenere l'elenco completo dei topic
         # Supponiamo che il backend esponga un endpoint GET /api/rules/topics
-        response = requests.get(f"{BACKEND_URL}/topics", timeout=10)
+        response = requests.get("http://presentation-service:5050/rules", timeout=10)
         response.raise_for_status()
         
-        topics = response.json()  # Ci aspettiamo una lista di stringhe: ["topic1", "topic2", ...]
+        raw_data = response.json()  
+        
+        # Estrae i topic (colonna 1) dal database. 
+        # Il set() serve a rimuovere i duplicati prima di convertirli di nuovo in una lista.
+        topics = list(set([row[1] for row in raw_data if len(row) > 1]))
+
+        print(f"initial topics: {topics}", file=sys.stderr, flush=True)
         
         count = 0
         for topic in topics:
@@ -72,18 +90,61 @@ def sync_rules_on_startup():
 def process_message(ch, method, properties, body):
     data = json.loads(body)
     topic = data.get("topic")
-    print(data)
     
-    # 1. Cerca regole nel DB per questo topic (Esempio semplificato)
-    # rule = db.query("SELECT * FROM rules WHERE sensor_id = %s", (topic,))
-    rule = {"metric": "temperature", "threshold": 30, "actuator": "fan_01"} # Dummy
+    print(f"\n---> [RICEVUTO] Topic: {topic} | Dati: {data}", file=sys.stderr, flush=True)
     
-    # 2. Applica la regola
-    for measure in data.get("measurements", []):
-        if measure["metric"] == rule["metric"] and measure["value"] > rule["threshold"]:
-            # 3. Notifica il Backend
-            print(f"!!! REGOLA ATTIVATA per {topic} - Attivazione {rule['actuator']}")
-            # requests.post(BACKEND_URL, json={"id": rule["actuator"], "status": "ON"})
+    try:
+        response = requests.post(RULES_API_URL, json={"sensor_name": topic}, timeout=5)
+        
+        if response.status_code == 200:
+            rules = response.json()
+            
+            if not rules:
+                print(f"---> [INFO] Nessuna regola per {topic}", file=sys.stderr, flush=True)
+                return
+
+            for rule_row in rules:
+                # 🎯 Mappatura esatta sulla tua tabella SQL:
+                # 0:id, 1:sensor_name, 2:operator, 3:threshold, 4:unit, 
+                # 5:actuator_name, 6:actuator_state, 7:enabled, 8:created_at
+                
+                rule_enabled = rule_row[7]
+                if not rule_enabled:
+                    continue # Salta subito le regole disattivate (geniale averlo nel DB!)
+
+                rule_op_str = rule_row[2]            # es: ">"
+                rule_threshold = float(rule_row[3])  # es: 30.0
+                actuator_name = rule_row[5]          # es: "fan_01"
+                actuator_state = rule_row[6]         # es: "ON"
+                
+                # Prende la funzione matematica corrispondente all'operatore
+                op_func = OPERATORI_MAP.get(rule_op_str)
+                if not op_func:
+                    print(f"Operatore ignorato: {rule_op_str}", file=sys.stderr, flush=True)
+                    continue
+                
+                # Applica la regola ai dati ricevuti
+                for measure in data.get("measurements", []):
+                    misurazione = float(measure.get("value", 0))
+                    
+                    # MAGIA: valuta se (misurazione OPERATORE soglia) è vero.
+                    # Equivale a scrivere "if misurazione > rule_threshold:"
+                    if op_func(misurazione, rule_threshold):
+                        
+                        # --- ALLARME SCATTATO ---
+                        print(f"!!! REGOLA ATTIVATA per {topic} !!!", file=sys.stderr, flush=True)
+                        print(f"    Condizione verificata: {misurazione} {rule_op_str} {rule_threshold}", file=sys.stderr, flush=True)
+                        print(f"    -> AZIONE: Imposta {actuator_name} su {actuator_state}", file=sys.stderr, flush=True)
+                        
+                        # Se/quando avrai l'API per comandare gli attuatori reali:
+                        requests.post("http://presentation-service:5050/switch_actuator", json={"actuator": actuator_name, "state": actuator_state})
+
+        else:
+            print(f"---> [ERRORE API] Codice: {response.status_code}", file=sys.stderr, flush=True)
+            
+    except requests.exceptions.RequestException as e:
+        print(f"---> [ERRORE RETE] API irraggiungibile: {e}", file=sys.stderr, flush=True)
+
 
 
 # --- Endpoint per il Backend (Aggiornamento Regole) ---
@@ -125,7 +186,7 @@ def start_rabbitmq():
 if __name__ == "__main__":
     channel = connect_rabbitmq()
 
-    #sync_rules_on_startup()
+    sync_rules_on_startup()
     
     # Avvia RabbitMQ in un thread separato
     threading.Thread(target=start_rabbitmq, daemon=True).start()
