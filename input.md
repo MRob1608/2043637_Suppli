@@ -108,6 +108,7 @@ IF <sensor_name> <operator> <value> THEN set <actuator_name> to <ON|OFF>
 * **As a** habitat operator
 * **I want** the system to automatically activate actuators when rule conditions are met
 * **So that** environmental conditions are maintained.
+* **NFR - Reliability** The automation engine must verify the current state of an actuator before sending a command to prevent redundant messages
 * **Mockup:** ![Mockup US-11](/booklets/actuators.png)
 
 #### US-12 – Manual Actuator control
@@ -133,7 +134,7 @@ IF <sensor_name> <operator> <value> THEN set <actuator_name> to <ON|OFF>
 #### US-15 – Persist automation rules
 * **As a** system operator
 * **I want** the automation rules to be persisted in a database
-* **So that** the habitat automation logic is preserved and restored automatically after a system reboot or failure.
+* **So that** the habitat automation logic is preserved and restored automatically after a system reboot.
 
 #### US-16 – View real-time telemetry trends
 * **As a** system operator
@@ -147,4 +148,5 @@ IF <sensor_name> <operator> <value> THEN set <actuator_name> to <ON|OFF>
 * **I want to** export and store the sensor telemetry charts as a PDF file
 * **So that** I can archive, share, and review historical telemetry reports outside the system.
 * **NFR:** The generated PDF must include clearly labeled charts and timestamps for the selected time range.
+* **NFR - Resource Management** To prevent memory leaks, the report must cap the in-memory history and use background threads for rendering
 * **Mockup:** ![Mockup US-17](/booklets/reporting.png)

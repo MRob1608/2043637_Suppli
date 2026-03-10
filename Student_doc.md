@@ -61,6 +61,7 @@ This project is a multi-container IoT monitoring and control system for a Mars h
 #### US-11 - Automated Actuator control
 * **As a** habitat operator
 * **I want** the system to automatically activate actuators when rule conditions are met
+* **NFR - Reliability** The automation engine must verify the current state of an actuator before sending a command to prevent redundant messages
 * **So that** environmental conditions are maintained.
 
 #### US-12 – Manual Actuator control
@@ -90,6 +91,13 @@ This project is a multi-container IoT monitoring and control system for a Mars h
 * **I want to** see live line charts for telemetry data (e.g., power_bus, radiation)
 * **So that** I can analyze immediate trends.
 * **NFR:** Real-time updates must be handled with low latency via WebSocket or SSE.
+
+#### US-17 – Export sensor charts to PDF
+* **As a** system operator
+* **I want to** export and store the sensor telemetry charts as a PDF file
+* **So that** I can archive, share, and review historical telemetry reports outside the system.
+* **NFR:** The generated PDF must include clearly labeled charts and timestamps for the selected time range.
+* **NFR - Resource Management** To prevent memory leaks, the report must cap the in-memory history and use background threads for rendering
 
 # CONTAINERS:
 
@@ -158,10 +166,19 @@ RabbitMQ message broker providing AMQP messaging for telemetry and sensor data d
 
 ### USER STORIES:
 
-- Enables real-time distribution of ingested sensor and telemetry data so that:
-  - The automation engine can apply rules.
-  - The state service can forward updates to the frontend.
-  - The report service can generate historical reports for selected sensors.
+#### US-01 – View sensors
+
+#### US-02 – View sensors values
+
+#### US-03 – View sensors measure units
+
+#### US-11 - Automated Actuator control
+
+#### US-13 – View sensor warnings
+
+#### US-16 – View real-time telemetry trends
+
+#### US-17 – Export sensor charts to PDF
 
 ### PORTS:
 
@@ -216,6 +233,10 @@ RabbitMQ message broker providing AMQP messaging for telemetry and sensor data d
 PostgreSQL database storing automation rules, built from `src/database` directory. It holds the `rules` table which is queried and updated by the `presentation-service` and used indirectly by `automation-engine`.
 
 ### USER STORIES:
+
+#### US-06 – View system rules
+
+#### US-10 – Disable and/or enable rule
 
 #### US-15 – Persist automation rules
 
@@ -280,7 +301,15 @@ Python service that ingests sensor and telemetry data from the `mars-simulator` 
 
 ### USER STORIES:
 
-- Supports real-time monitoring and automation by ensuring sensor and telemetry data flows continuously into the messaging backbone and downstream services.
+#### US-01 – View sensors
+
+#### US-02 – View sensors values
+
+#### US-03 – View sensors measure units
+
+#### US-11 - Automated Actuator control
+
+#### US-16 – View real-time telemetry trends
 
 ### PORTS:
 
@@ -315,7 +344,7 @@ Python service that ingests sensor and telemetry data from the `mars-simulator` 
 
 * SERVICE ARCHITECTURE:
 
-  - On startup (`if __name__ == "__main__":` in `app.py`):
+  - On startup (`app.py`):
     - Creates a persistent RabbitMQ connection and channel via `create_connection()`, declares `exchange_data` (topic exchange).
     - Starts multiple threads:
       - SSE listener threads (`listen_sse`) per `SSE_TOPICS`.
@@ -375,7 +404,7 @@ Automation engine that consumes normalized sensor/telemetry messages from Rabbit
 * SERVICE ARCHITECTURE:
 
   - Global configuration: `RABBIT_HOST`, `EXCHANGE_NAME`, `RULES_API_URL`.
-  - On startup (`if __name__ == "__main__":` in `engine.py`):
+  - On startup (`engine.py`):
     - Calls `connect_rabbitmq()` to connect to the broker, declare `exchange_data`, declare an exclusive queue, and store `channel`, `connection`, `queue_name`.
     - Calls `sync_rules_on_startup()`:
       - Fetches all rules via `GET http://presentation-service:5050/rules`.
@@ -560,10 +589,10 @@ Uses the `rules` table defined under `rule-database` (see that container).
 
 | Name                | Description                                                                                           | Related Microservice | User Stories                                                                                  |
 | ------------------- | ----------------------------------------------------------------------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------- |
-| Monitoring section  | Displays scalar environment sensors and telemetry stream cards with live values and charts.          | presentation-backend | US-1                                                     |
-| Control section     | Shows actuator cards with ON/OFF status, toggle controls, and an actuator event log terminal.        | presentation-backend | US-12                                |
+| Monitoring section  | Displays scalar environment sensors and telemetry stream cards with live values and charts.          | presentation-backend | US-1 US-2 US-3 US-13 US-16                                                    |
+| Control section     | Shows actuator cards with ON/OFF status, toggle controls, and an actuator event log terminal.        | presentation-backend | US-4 US-5 US-12 US-14                                |
 | Sensors section     | Displays cards for all scalar and telemetry sensors with toggles to enable/disable reporting.        | presentation-backend | US-17                                       |
-| Automation section  | Shows automation rule table and modal for creating/editing rules, including enable/disable toggles.  | presentation-backend | US-8 US-9 US-10                    |
+| Automation section  | Shows automation rule table and modal for creating/editing rules, including enable/disable toggles.  | presentation-backend | US-6 US-8 US-9 US-10                    |
 
 
 ---
@@ -576,7 +605,15 @@ Python service that builds a snapshot of available sensors, telemetry topics, an
 
 ### USER STORIES:
 
-- Enables the frontend to display real-time data by ensuring all messages on `exchange_data` are forwarded to the presentation service, which in turn broadcasts via WebSockets.
+#### US-01 – View sensors
+
+#### US-02 – View sensors values
+
+#### US-03 – View sensors measure units
+
+#### US-04 – View actuators
+
+#### US-05 – View actuator state
 
 ### PORTS:
 
@@ -609,7 +646,7 @@ Python service that builds a snapshot of available sensors, telemetry topics, an
 
 * SERVICE ARCHITECTURE:
 
-  - On startup (`if __name__ == "__main__":` in `state.py`):
+  - On startup (`state.py`):
     - Waits for simulator readiness and calls:
       - `GET http://mars-simulator:8080/api/sensors`.
       - `GET http://mars-simulator:8080/api/telemetry/topics`.
@@ -668,7 +705,7 @@ Python + Flask service that consumes selected sensor messages from RabbitMQ, mai
 
 * SERVICE ARCHITECTURE:
 
-  - On startup (`if __name__ == "__main__":` in `report-generator.py`):
+  - On startup (`report-generator.py`):
     - Connects to RabbitMQ (`connect_rabbitmq`), declares `exchange_data`, declares an exclusive queue, and stores `channel`, `connection`, `queue_name`.
     - Starts `start_rabbitmq()` in a background thread to `basic_consume` with callback `process_message`.
     - Runs the Flask app on `0.0.0.0:3030`.
