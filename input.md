@@ -28,7 +28,7 @@ To handle the incompatible dialects of the habitat's devices, all incoming data 
   "metadata": {},
   "topic": "string"
 }
-
+```
 ## 3. Rule Model
 The automation engine supports simple IF-THEN rules that are dynamically evaluated upon the arrival of new normalized events. Rules are persisted in a database to survive service restarts.
 
@@ -141,3 +141,10 @@ IF <sensor_name> <operator> <value> THEN set <actuator_name> to <ON|OFF>
 * **So that** I can analyze immediate trends.
 * **NFR:** Real-time updates must be handled with low latency via WebSocket or SSE.
 * **Mockup:** ![Mockup US-16](/booklets/dashboard.png)
+
+#### US-17 – Export sensor charts to PDF
+* **As a** system operator
+* **I want to** export and store the sensor telemetry charts as a PDF file
+* **So that** I can archive, share, and review historical telemetry reports outside the system.
+* **NFR:** The generated PDF must include clearly labeled charts and timestamps for the selected time range.
+* **Mockup:**

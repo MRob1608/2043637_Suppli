@@ -44,7 +44,7 @@ def generate_pdf_report(topic, data_list):
     ax.plot(timestamps, values, marker='o', linestyle='-', color='#1f77b4', label=label_text)
 
     ax.set_title(f"Sensor Report: {topic} ({metric_name})")
-    ax.set_xlabel("Tempo")
+    ax.set_xlabel("Timestamp")
     ax.set_ylabel(f"Value ({metric_name})")
     ax.grid(True, linestyle='--', alpha=0.7)
     ax.legend(loc="best")
