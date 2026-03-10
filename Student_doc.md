@@ -132,9 +132,6 @@ External IoT simulator container providing sensor, telemetry, and actuator HTTP 
 
 * PORTS: 8080 (inside container; exposed as `8080:8080`).
 
-* TECHNOLOGICAL SPECIFICATION:
-  TODO (implementation not in this repository; only the image name is known).
-
 * SERVICE ARCHITECTURE:
 
   Acts as an upstream REST/SSE provider. Other microservices perform:
@@ -142,9 +139,6 @@ External IoT simulator container providing sensor, telemetry, and actuator HTTP 
   - Reads of aggregated lists (`/api/sensors`, `/api/telemetry/topics`, `/api/actuators`).
   - POST commands to `/api/actuators/<actuator>` to change actuator state.
 
-* ENDPOINTS:
-
-  TODO (exact API contract is not defined in code here; only URLs are referenced).
 
 * PAGES:
 
@@ -213,14 +207,6 @@ RabbitMQ message broker providing AMQP messaging for telemetry and sensor data d
 
   N/A (AMQP service, not HTTP).
 
-* PAGES:
-
-  N/A.
-
-* DB STRUCTURE:
-
-  N/A.
-
 ---
 
 ## CONTAINER_NAME: rule-database
@@ -268,14 +254,6 @@ PostgreSQL database storing automation rules, built from `src/database` director
   - Single table `rules` used for automation rules.
   - `presentation-service` performs CRUD on `rules` via SQL (`SELECT`, `INSERT`, `UPDATE`, `DELETE`).
   - `automation-engine` queries rules indirectly by calling `presentation-service:/get_rule` rather than connecting directly to the DB.
-
-* ENDPOINTS:
-
-  N/A (database service).
-
-* PAGES:
-
-  N/A.
 
 * DB STRUCTURE:
 
@@ -353,13 +331,6 @@ Python service that ingests sensor and telemetry data from the `mars-simulator` 
 
   N/A (no HTTP server defined).
 
-* PAGES:
-
-  N/A.
-
-* DB STRUCTURE:
-
-  N/A (does not interact with a database).
 
 ---
 
@@ -428,9 +399,6 @@ Automation engine that consumes normalized sensor/telemetry messages from Rabbit
 | ----------- | --------------- | --------------------------------------------------------------------------- | -------------------------------------------------- |
 | POST        | /update-rules   | Updates RabbitMQ topic subscriptions based on `action` (`add`/`remove`) and `topic`. Uses thread-safe callbacks to bind/unbind queue to `exchange_data`. | Dynamic reaction to new/removed rules/topics.      |
 
-* PAGES:
-
-  N/A.
 
 * DB STRUCTURE:
 
@@ -572,9 +540,6 @@ Flask + Flask-SocketIO backend with a single-page HTML/JS frontend (`index.html`
 | POST        | /update_sensor      | Receives new sensor/telemetry measurements and broadcasts them to connected clients via Socket.IO `sensor_update`.             | US-1                                                                                             |
 | POST        | /switch_sensor_state| Receives `topic` and `state` (`add`/`remove`), validates, and calls `report-service:/change_sensor_tracking`.                  | US-17       |
 
-* PAGES:
-
-N/A for backend.
 
 * DB STRUCTURE:
 
@@ -634,9 +599,6 @@ Uses the `rules` table defined under `rule-database` (see that container).
 | Sensors section     | Displays cards for all scalar and telemetry sensors with toggles to enable/disable reporting.        | presentation-backend | Select which sensors are tracked by the report-service.                                       |
 | Automation section  | Shows automation rule table and modal for creating/editing rules, including enable/disable toggles.  | presentation-backend | Manage automation rules that control actuators based on sensor thresholds.                    |
 
-* DB STRUCTURE:
-
-  N/A (frontend does not manage databases directly).
 
 ---
 
@@ -695,14 +657,6 @@ Python service that builds a snapshot of available sensors, telemetry topics, an
 * ENDPOINTS:
 
   N/A (no HTTP server defined).
-
-* PAGES:
-
-  N/A.
-
-* DB STRUCTURE:
-
-  N/A.
 
 ---
 
@@ -769,10 +723,6 @@ Python + Flask service that consumes selected sensor messages from RabbitMQ, mai
 | HTTP METHOD | URL                  | Description                                                                                                     | User Stories                                                   |
 | ----------- | -------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | POST        | /change_sensor_tracking | Accepts JSON `{ "action": "add" or "remove", "topic": "<topic>" }`. On `add`, creates history deque and binds queue to topic; on `remove`, clears history and unbinds. | US-17 |
-
-* PAGES:
-
-  N/A.
 
 * DB STRUCTURE:
 
