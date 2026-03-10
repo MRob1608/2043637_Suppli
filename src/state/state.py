@@ -22,7 +22,7 @@ def callback(ch, method, properties, body):
     try:
         # Decode the incoming message payload
         data = json.loads(body)
-        print(f"[STATE][DEBUG] Message received | topic={data.get('topic')} | measurements_count={len(data.get('measurements', []))}")
+        print(f"[STATE][DEBUG] Message received | topic={data.get('topic')} | measurements={data.get('measurements', [])}")
         
         response = requests.post(
             "http://presentation-service:5050/update_sensor", 

@@ -1422,7 +1422,7 @@ function populateRuleFormOptions() {
   sensorSelect.innerHTML = "";
   actuatorSelect.innerHTML = "";
 
-  scalarSensors.forEach((sensor) => {
+  [...scalarSensors, ...telemetryStreams].forEach((sensor) => {
     const opt = document.createElement("option");
     opt.value = sensor.id;
     opt.textContent = sensor.label;
@@ -1543,7 +1543,7 @@ function init() {
     });
 
     socket.on("actuator_switch", (payload) => {
-      const { actuator, state, sender} = payload || {};
+      const { actuator, state, sender } = payload || {};
       if (!actuator) return;
       const item = actuators.find((a) => a.id === actuator);
       if (!item) return;

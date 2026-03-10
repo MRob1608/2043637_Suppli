@@ -92,7 +92,7 @@ def process_message(ch, method, properties, body):
     topic = data.get("topic")
     
     measurements = data.get("measurements", [])
-    print(f"[AUTOMATION][DEBUG] Message received | topic={topic} | measurements_count={len(measurements)}", file=sys.stderr, flush=True)
+    print(f"[AUTOMATION][DEBUG] Message received | topic={topic} | measurements={measurements}", file=sys.stderr, flush=True)
     
     try:
         response = requests.post(RULES_API_URL, json={"sensor_name": topic}, timeout=5)
