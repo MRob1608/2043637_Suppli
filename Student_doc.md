@@ -4,11 +4,92 @@ This project is a multi-container IoT monitoring and control system for a Mars h
 
 # USER STORIES:
 
-- As an operator, I want to view real-time scalar sensor values and telemetry streams for the Mars habitat so that I can monitor environmental conditions. (From `index.html` UI labels and WebSocket `sensor_update` handling in `presentation_service/server/app.py` and `static/js/app.js`.)
-- As an operator, I want to manually switch actuators ON/OFF so that I can directly control devices in the habitat. (From `/switch_actuator` endpoint in `presentation_service/server/app.py` and actuator UI in `static/js/app.js`.)
-- As an operator, I want to define and manage automation rules (IF sensor THEN actuator) so that actuators are controlled automatically based on sensor thresholds. (From rules endpoints in `presentation_service/server/app.py`, rules table in `schema.sql`, and rule management UI in `index.html`/`static/js/app.js`.)
-- As an operator, I want to enable or disable tracking of specific sensors for reporting so that only relevant sensors generate reports. (From `/switch_sensor_state` in `presentation_service/server/app.py` and `/change_sensor_tracking` in `report_service/report-generator.py` plus sensor tracking UI in `static/js/app.js`.)
-- As an operator, I want periodic PDF reports with plots and statistics for selected sensors so that I can analyze historical behavior. (From `generate_pdf_report` and `process_message` in `report_service/report-generator.py` and existing PDF files in `src/reports/...`.)
+#### US-01 – View sensors
+* **As a** habitat operator
+* **I want to** see the list of available sensors
+* **So that** I can monitor the habitat systems.
+
+#### US-02 – View sensors values
+* **As a** habitat operator
+* **I want to** see the current values of sensors
+* **So that** I can monitor environmental conditions.
+
+#### US-03 – View sensors measure units
+* **As a** habitat operator
+* **I want to** see the unit of measurement of each sensor
+* **So that** I can correctly interpret the values.
+
+#### US-04 – View actuators
+* **As a** habitat operator
+* **I want to** see the list of actuators
+* **So that** I know which devices can be controlled.
+
+#### US-05 – View actuator state
+* **As a** habitat operator
+* **I want to** see the current state of an actuator
+* **So that** I know whether it is ON or OFF.
+
+#### US-06 – View system rules
+* **As a** habitat operator
+* **I want to** see the list of automation rules
+* **So that** I can review system automation.
+
+### ---- RULE MANAGEMENT ----
+
+#### US-07 – Create new rule
+* **As a** habitat operator
+* **I want to** create new automation rules
+* **So that** the system can automatically react to sensor values and interact with the environment.
+
+#### US-08 – Update rule
+* **As a** habitat operator
+* **I want to** update already existing automation rules
+* **So that** the system can respond to new conditions.
+
+#### US-09 – Delete rule
+* **As a** habitat operator
+* **I want to** delete an automation rule
+* **So that** I can remove outdated automation.
+
+#### US-10 – Disable and/or enable rule
+* **As a** habitat operator
+* **I want to** disable and/or enable an automation rule
+* **So that** I can handle in real time automation.
+
+### ---- ACTUATOR MANAGEMENT ----
+
+#### US-11 - Automated Actuator control
+* **As a** habitat operator
+* **I want** the system to automatically activate actuators when rule conditions are met
+* **So that** environmental conditions are maintained.
+
+#### US-12 – Manual Actuator control
+* **As a** habitat operator
+* **I want to** manually activate or deactivate an actuator
+* **So that** I can override automation when necessary.
+
+### ---- SYSTEM ALERTS, LOGS AND TELEMETRY ----
+
+#### US-13 – View sensor warnings
+* **As a** habitat operator
+* **I want to** see visual warnings or alerts for REST sensors when they exceed critical thresholds or become unreachable
+* **So that** I can quickly identify and react to life-support anomalies.
+
+#### US-14 – View actuator activation history
+* **As a** habitat operator
+* **I want to** view a terminal or log showing the history of actuator state changes (both manual and rule-triggered)
+* **So that** I can trace system actions and audit the automation behavior.
+
+#### US-15 – Persist automation rules
+* **As a** system operator
+* **I want** the automation rules to be persisted in a database
+* **So that** the habitat automation logic is preserved and restored automatically after a system reboot or failure.
+
+#### US-16 – View real-time telemetry trends
+* **As a** system operator
+* **I want to** see live line charts for telemetry data (e.g., power_bus, radiation)
+* **So that** I can analyze immediate trends.
+* **NFR:** Real-time updates must be handled with low latency via WebSocket or SSE.
 
 # CONTAINERS:
 
@@ -150,7 +231,9 @@ PostgreSQL database storing automation rules, built from `src/database` director
 
 ### USER STORIES:
 
-- As an operator, I can persist and retrieve automation rules so that automation logic survives restarts and can be managed via the UI.
+* **As a** system operator
+* **I want** the automation rules to be persisted in a database
+* **So that** the habitat automation logic is preserved and restored automatically after a system reboot or failure.
 
 ### PORTS:
 
@@ -288,8 +371,9 @@ Automation engine that consumes normalized sensor/telemetry messages from Rabbit
 
 ### USER STORIES:
 
-- As an operator, I can rely on automation rules to automatically adjust actuators based on sensor conditions.
-- As an operator, I can add/remove rules and have the engine subscribe/unsubscribe to the corresponding sensor topics dynamically.
+* **As a** habitat operator
+* **I want** the system to automatically activate actuators when rule conditions are met
+* **So that** environmental conditions are maintained.
 
 ### PORTS:
 
@@ -362,11 +446,65 @@ Flask + Flask-SocketIO backend with a single-page HTML/JS frontend (`index.html`
 
 ### USER STORIES:
 
-- View real-time scalar sensors and telemetry graphs.
-- Manually control actuators and see an actuator event log.
-- Create, update, enable/disable, and delete automation rules.
-- Enable or disable reporting for individual sensors.
-- See real-time connection status and mission time (from UI).
+* **As a** habitat operator
+* **I want to** see the list of available sensors
+* **So that** I can monitor the habitat systems.
+
+* **As a** habitat operator
+* **I want to** see the current values of sensors
+* **So that** I can monitor environmental conditions.
+
+* **As a** habitat operator
+* **I want to** see the unit of measurement of each sensor
+* **So that** I can correctly interpret the values.
+
+* **As a** habitat operator
+* **I want to** see the list of actuators
+* **So that** I know which devices can be controlled.
+
+* **As a** habitat operator
+* **I want to** see the current state of an actuator
+* **So that** I know whether it is ON or OFF.
+
+* **As a** habitat operator
+* **I want to** see the list of automation rules
+* **So that** I can review system automation.
+
+* **As a** habitat operator
+* **I want to** create new automation rules
+* **So that** the system can automatically react to sensor values and interact with the environment.
+
+* **As a** habitat operator
+* **I want to** update already existing automation rules
+* **So that** the system can respond to new conditions.
+
+* **As a** habitat operator
+* **I want to** delete an automation rule
+* **So that** I can remove outdated automation.
+
+* **As a** habitat operator
+* **I want to** disable and/or enable an automation rule
+* **So that** I can handle in real time automation.
+
+* **As a** habitat operator
+* **I want to** manually activate or deactivate an actuator
+* **So that** I can override automation when necessary.
+
+* **As a** habitat operator
+* **I want to** see visual warnings or alerts for REST sensors when they exceed critical thresholds or become unreachable
+* **So that** I can quickly identify and react to life-support anomalies.
+
+* **As a** habitat operator
+* **I want to** view a terminal or log showing the history of actuator state changes (both manual and rule-triggered)
+* **So that** I can trace system actions and audit the automation behavior.
+
+* **As a** system operator
+* **I want** the automation rules to be persisted in a database
+* **So that** the habitat automation logic is preserved and restored automatically after a system reboot or failure.
+
+* **As a** system operator
+* **I want to** see live line charts for telemetry data (e.g., power_bus, radiation)
+* **So that** I can analyze immediate trends.
 
 ### PORTS:
 
@@ -424,15 +562,15 @@ Flask + Flask-SocketIO backend with a single-page HTML/JS frontend (`index.html`
 
 | HTTP METHOD | URL                 | Description                                                                                                                     | User Stories                                                                                     |
 | ----------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| GET         | /                   | Renders `index.html`, the main Mars Mission Dashboard UI.                                                                      | Access dashboard with monitoring, control, automation views.                                     |
-| GET         | /rules              | Returns all rules from `rules` table via JSON.                                                                                 | View existing automation rules.                                                                  |
-| POST        | /add_rule           | Inserts a new rule into the `rules` table and posts to `automation-engine:/update-rules` with `action="add"`, `topic=sensor`. | Create automation rules that will be applied by the engine.                                      |
-| POST        | /update_rule        | Updates an existing rule in the `rules` table.                                                                                 | Modify existing automation rule parameters and enabled state.                                    |
-| POST        | /delete_rule        | Deletes a rule by `id` from the `rules` table.                                                                                 | Remove automation rules.                                                                         |
-| POST        | /get_rule           | Returns all rules for a given `sensor_name` (used by automation engine).                                                       | Allow automation engine to retrieve relevant rules for one sensor.                               |
-| POST        | /switch_actuator    | Validates `actuator` and `state`, posts JSON `{"state": state}` to `mars-simulator:/api/actuators/<actuator>`, emits Socket.IO event. | Manually switch actuators ON/OFF from frontend and reflect changes in UI.                       |
-| POST        | /update_sensor      | Receives new sensor/telemetry measurements and broadcasts them to connected clients via Socket.IO `sensor_update`.             | Keep UI scalar cards and telemetry charts updated in real time.                                  |
-| POST        | /switch_sensor_state| Receives `topic` and `state` (`add`/`remove`), validates, and calls `report-service:/change_sensor_tracking`.                  | Enable/disable reporting (tracking) for specific sensors from the frontend sensor toggle.       |
+| GET         | /                   | Renders `index.html`, the main Mars Mission Dashboard UI.                                                                      | US-1 US-2 US-3 US-4 US-5                                                                         |
+| GET         | /rules              | Returns all rules from `rules` table via JSON.                                                                                 | US-6                                                                                             |
+| POST        | /add_rule           | Inserts a new rule into the `rules` table and posts to `automation-engine:/update-rules` with `action="add"`, `topic=sensor`. | US-7                                                                                             |
+| POST        | /update_rule        | Updates an existing rule in the `rules` table.                                                                                 | US-8                                                                                             |
+| POST        | /delete_rule        | Deletes a rule by `id` from the `rules` table.                                                                                 | US-9                                                                                             |
+| POST        | /get_rule           | Returns all rules for a given `sensor_name` (used by automation engine).                                                       | US-11                                                                                            |
+| POST        | /switch_actuator    | Validates `actuator` and `state`, posts JSON `{"state": state}` to `mars-simulator:/api/actuators/<actuator>`, emits Socket.IO event. | US-12                                                                                   |
+| POST        | /update_sensor      | Receives new sensor/telemetry measurements and broadcasts them to connected clients via Socket.IO `sensor_update`.             | US-1                                                                                             |
+| POST        | /switch_sensor_state| Receives `topic` and `state` (`add`/`remove`), validates, and calls `report-service:/change_sensor_tracking`.                  | US-17       |
 
 * PAGES:
 
@@ -576,8 +714,10 @@ Python + Flask service that consumes selected sensor messages from RabbitMQ, mai
 
 ### USER STORIES:
 
-- As an operator, I can choose which sensors should generate reports.
-- As an operator, I can obtain PDF reports for selected sensors, containing charts and statistics, stored in a shared volume.
+* **As a** system operator
+* **I want to** export and store the sensor telemetry charts as a PDF file
+* **So that** I can archive, share, and review historical telemetry reports outside the system.
+* **NFR:** The generated PDF must include clearly labeled charts and timestamps for the selected time range.
 
 ### PORTS:
 
@@ -628,7 +768,7 @@ Python + Flask service that consumes selected sensor messages from RabbitMQ, mai
 
 | HTTP METHOD | URL                  | Description                                                                                                     | User Stories                                                   |
 | ----------- | -------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| POST        | /change_sensor_tracking | Accepts JSON `{ "action": "add" or "remove", "topic": "<topic>" }`. On `add`, creates history deque and binds queue to topic; on `remove`, clears history and unbinds. | Enable or disable PDF report generation for specific sensors. |
+| POST        | /change_sensor_tracking | Accepts JSON `{ "action": "add" or "remove", "topic": "<topic>" }`. On `add`, creates history deque and binds queue to topic; on `remove`, clears history and unbinds. | US-17 |
 
 * PAGES:
 
