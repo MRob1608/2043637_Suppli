@@ -409,7 +409,7 @@ function updateScalarSensorsUI() {
   }
 }
 
-function appendActuatorLogEntry(actuatorId, state, source, ruleName) {
+function appendActuatorLogEntry(actuatorId, state, source, ruleName, sender) {
   const container = document.getElementById("actuator-log");
   if (!container) return;
 
@@ -1002,7 +1002,7 @@ function toggleActuator(actuatorId) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ actuator: actuatorId, state: desiredState }),
+    body: JSON.stringify({ actuator: actuatorId, state: desiredState, sender: "frontend" }),
   })
     .then((res) => res.json())
     .then((data) => {
@@ -1524,14 +1524,14 @@ function init() {
     });
 
     socket.on("actuator_switch", (payload) => {
-      const { actuator, state } = payload || {};
+      const { actuator, state, sender} = payload || {};
       if (!actuator) return;
       const item = actuators.find((a) => a.id === actuator);
       if (!item) return;
       item.status = state === "ON" ? "on" : "off";
       item.lastChangedAt = formatTime(new Date());
       updateActuatorsUI();
-      appendActuatorLogEntry(actuator, state, "manual", null);
+      if (sender != "engine") appendActuatorLogEntry(actuator, state, "manual", null, sender);
     });
   }
 

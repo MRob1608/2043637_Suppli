@@ -20,7 +20,6 @@ GET_TOPICS = [
 ]
 
 SSE_TOPICS = [
-    "http://mars-simulator:8080/api/telemetry/stream/mars/telemetry/airlock",
     "http://mars-simulator:8080/api/telemetry/stream/mars/telemetry/solar_array",
     "http://mars-simulator:8080/api/telemetry/stream/mars/telemetry/radiation",
     "http://mars-simulator:8080/api/telemetry/stream/mars/telemetry/life_support",

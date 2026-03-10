@@ -77,8 +77,22 @@ services:
     networks:
       - mars-network
 
+  report-service:
+    build:
+      context: ./report_service
+    ports:
+      - "3030:3030"
+    depends_on:
+      - message-broker
+      - ingestion-service
+    volumes:
+      - ./reports:/app/reports
+    networks:
+      - mars-network
+
 volumes:
   postgres_data:
+  reports:
 
 networks:
   mars-network:

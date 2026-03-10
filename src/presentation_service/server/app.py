@@ -142,6 +142,7 @@ def switch_actuator():
     data = request.json
     actuator = data.get("actuator")
     state = data.get("state") # "ON" o "OFF"
+    sender = data.get("sender")
 
     if not actuator or not state:
         return jsonify({"error": "Parametri 'actuator' o 'state' mancanti"}), 400
@@ -157,7 +158,7 @@ def switch_actuator():
 
         if response.ok:
             # Notifichiamo il frontend, includendo quale attuatore è cambiato
-            socketio.emit("actuator_switch", {"actuator": actuator, "state": state})
+            socketio.emit("actuator_switch", {"actuator": actuator, "state": state, "sender": sender})
             return jsonify({'ok': True})
         else:
             print(f"Errore dal simulatore: {response.text}", flush=True)
@@ -183,13 +184,17 @@ def switch_sensor_state():
     data = request.json
     sensor = data.get("topic")
     state = data.get("state")
+    print(data)
 
     if not sensor or not state:
         return jsonify({"error": "Parametri 'sensor' o 'measurements' mancanti"}), 400
 
-    response = requests.post("http://report-generator:3030/change_sensor_tracking", {"state": state, "topic": topic})
+    response = requests.post("http://report-service:3030/change_sensor_tracking", json={"action": state, "topic": sensor})
     if response.ok:
         return jsonify({'ok': True})
+    else:
+            print(f"Errore dal simulatore: {response.text}", flush=True)
+            return jsonify({'ok': False, 'error': f"Errore {response.status_code}"}), response.status_code
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5050)

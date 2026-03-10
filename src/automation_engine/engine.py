@@ -107,7 +107,7 @@ def process_message(ch, method, properties, body):
             # Nota: uso verify=False nel caso in cui il container non abbia certificati validi per l'HTTPS
             current_actuators = {}
             try:
-                actuators_resp = requests.get("https://mars-simulator:8080/api-actuators", timeout=5, verify=False)
+                actuators_resp = requests.get("http://mars-simulator:8080/api/actuators", timeout=5, verify=False)
                 if actuators_resp.status_code == 200:
                     # Estrae il dizionario degli attuatori dal JSON {"actuators": {...}}
                     current_actuators = actuators_resp.json().get("actuators", {})
@@ -119,17 +119,17 @@ def process_message(ch, method, properties, body):
 
             for rule_row in rules:
                 # 🎯 Mappatura esatta sulla tua tabella SQL:
-                # 0:id, 1:sensor_name, 2:operator, 3:threshold, 4:unit, 
-                # 5:actuator_name, 6:actuator_state, 7:enabled, 8:created_at
+                # 0:id, 1:name, 2:sensor_name, 3:operator, 4:threshold, 5:unit, 
+                # 6:actuator_name, 7:actuator_state, 8:enabled, 9:created_at
 
-                rule_enabled = rule_row[7]
+                rule_enabled = rule_row[8]
                 if not rule_enabled:
                     continue # Salta subito le regole disattivate (geniale averlo nel DB!)
 
-                rule_op_str = rule_row[2]            # es: ">"
-                rule_threshold = float(rule_row[3])  # es: 30.0
-                actuator_name = rule_row[5]          # es: "fan_01"
-                actuator_state = rule_row[6]         # es: "ON"
+                rule_op_str = rule_row[3]            # es: ">"
+                rule_threshold = float(rule_row[4])  # es: 30.0
+                actuator_name = rule_row[6]          # es: "fan_01"
+                actuator_state = rule_row[7]         # es: "ON"
                 
                 # --- NUOVA AGGIUNTA: Salta la regola se l'attuatore ha già lo stato desiderato ---
                 if current_actuators.get(actuator_name) == actuator_state:
@@ -157,7 +157,7 @@ def process_message(ch, method, properties, body):
                         print(f"    -> AZIONE: Imposta {actuator_name} su {actuator_state}", file=sys.stderr, flush=True)
                         
                         # Se/quando avrai l'API per comandare gli attuatori reali:
-                        requests.post("http://presentation-service:5050/switch_actuator", json={"actuator": actuator_name, "state": actuator_state})
+                        requests.post("http://presentation-service:5050/switch_actuator", json={"actuator": actuator_name, "state": actuator_state, "sender": "engine"})
 
         else:
             print(f"---> [ERRORE API] Codice: {response.status_code}", file=sys.stderr, flush=True)
