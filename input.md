@@ -147,4 +147,4 @@ IF <sensor_name> <operator> <value> THEN set <actuator_name> to <ON|OFF>
 * **I want to** export and store the sensor telemetry charts as a PDF file
 * **So that** I can archive, share, and review historical telemetry reports outside the system.
 * **NFR:** The generated PDF must include clearly labeled charts and timestamps for the selected time range.
-* **Mockup:**
+* **Mockup:** ![Mockup US-17](/booklets/reporting.png)
