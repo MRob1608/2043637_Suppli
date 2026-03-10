@@ -145,6 +145,7 @@ def process_message(ch, method, properties, body):
                     continue
                 
                 # Apply the rule to the received data
+                dispatched_for_rule = False
                 for measure in data.get("measurements", []):
                     misurazione = float(measure.get("value", 0))
                     
@@ -158,7 +159,14 @@ def process_message(ch, method, properties, body):
                         print(f"[AUTOMATION][DEBUG] Action dispatched | actuator={actuator_name} | target_state={actuator_state}", file=sys.stderr, flush=True)
                         
                         # When an API for real actuators is available, this will trigger it:
-                        requests.post("http://presentation-service:5050/switch_actuator", json={"actuator": actuator_name, "state": actuator_state, "sender": "engine"})
+                        rule_name = rule_row[1] if len(rule_row) > 1 else ""
+                        sender = f"engine:{rule_name}" if rule_name else "engine"
+                        requests.post(
+                            "http://presentation-service:5050/switch_actuator",
+                            json={"actuator": actuator_name, "state": actuator_state, "sender": sender},
+                        )
+                        dispatched_for_rule = True
+                        break
 
         else:
             print(f"[AUTOMATION][ERROR] Rules API returned non-200 status | status={response.status_code}", file=sys.stderr, flush=True)

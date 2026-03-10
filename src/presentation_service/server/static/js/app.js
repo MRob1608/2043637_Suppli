@@ -1056,7 +1056,6 @@ function applyAutomation() {
     if (actuator.status !== desired && actuator.mode === "auto") {
       actuator.status = desired;
       actuator.lastChangedAt = `${formatTime(new Date())} via ${rule.name}`;
-      appendActuatorLogEntry(actuator.id, desired === "on" ? "ON" : "OFF", "rule", rule.name);
     }
   }
 
@@ -1550,7 +1549,18 @@ function init() {
       item.status = state === "ON" ? "on" : "off";
       item.lastChangedAt = formatTime(new Date());
       updateActuatorsUI();
-      if (sender != "engine") appendActuatorLogEntry(actuator, state, "manual", null, sender);
+
+      let source = "manual";
+      let ruleName = null;
+      if (typeof sender === "string" && sender.startsWith("engine")) {
+        source = "rule";
+        const parts = sender.split(":", 2);
+        if (parts.length === 2 && parts[1]) {
+          ruleName = parts[1];
+        }
+      }
+
+      appendActuatorLogEntry(actuator, state, source, ruleName, sender);
     });
   }
 
