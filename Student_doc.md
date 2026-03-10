@@ -594,10 +594,10 @@ Uses the `rules` table defined under `rule-database` (see that container).
 
 | Name                | Description                                                                                           | Related Microservice | User Stories                                                                                  |
 | ------------------- | ----------------------------------------------------------------------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------- |
-| Monitoring section  | Displays scalar environment sensors and telemetry stream cards with live values and charts.          | presentation-backend | View real-time sensor and telemetry data.                                                     |
-| Control section     | Shows actuator cards with ON/OFF status, toggle controls, and an actuator event log terminal.        | presentation-backend | Manually control actuators and observe recent actuator events.                                |
-| Sensors section     | Displays cards for all scalar and telemetry sensors with toggles to enable/disable reporting.        | presentation-backend | Select which sensors are tracked by the report-service.                                       |
-| Automation section  | Shows automation rule table and modal for creating/editing rules, including enable/disable toggles.  | presentation-backend | Manage automation rules that control actuators based on sensor thresholds.                    |
+| Monitoring section  | Displays scalar environment sensors and telemetry stream cards with live values and charts.          | presentation-backend | US-1                                                     |
+| Control section     | Shows actuator cards with ON/OFF status, toggle controls, and an actuator event log terminal.        | presentation-backend | US-12                                |
+| Sensors section     | Displays cards for all scalar and telemetry sensors with toggles to enable/disable reporting.        | presentation-backend | US-17                                       |
+| Automation section  | Shows automation rule table and modal for creating/editing rules, including enable/disable toggles.  | presentation-backend | US-8 US-9 US-10                    |
 
 
 ---
