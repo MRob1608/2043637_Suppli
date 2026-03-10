@@ -342,6 +342,7 @@ Automation engine that consumes normalized sensor/telemetry messages from Rabbit
 
 ### USER STORIES:
 
+#### US-11 - Automated Actuator control
 * **As a** habitat operator
 * **I want** the system to automatically activate actuators when rule conditions are met
 * **So that** environmental conditions are maintained.
@@ -413,63 +414,77 @@ Automation engine that consumes normalized sensor/telemetry messages from Rabbit
 Flask + Flask-SocketIO backend with a single-page HTML/JS frontend (`index.html`, `static/js/app.js`, `static/css/styles.css`). Provides the Mars Mission Dashboard UI, handles rule management, forwards sensor updates to the browser via WebSockets, proxies actuator commands to the simulator, and coordinates sensor tracking toggles with the report service.
 
 ### USER STORIES:
-
+#### US-01 – View sensors
 * **As a** habitat operator
 * **I want to** see the list of available sensors
 * **So that** I can monitor the habitat systems.
 
+#### US-02 – View sensors values
 * **As a** habitat operator
 * **I want to** see the current values of sensors
 * **So that** I can monitor environmental conditions.
 
+#### US-03 – View sensors measure units
 * **As a** habitat operator
 * **I want to** see the unit of measurement of each sensor
 * **So that** I can correctly interpret the values.
 
+#### US-04 – View actuators
 * **As a** habitat operator
 * **I want to** see the list of actuators
 * **So that** I know which devices can be controlled.
 
+#### US-05 – View actuator state
 * **As a** habitat operator
 * **I want to** see the current state of an actuator
 * **So that** I know whether it is ON or OFF.
 
+#### US-06 – View system rules
 * **As a** habitat operator
 * **I want to** see the list of automation rules
 * **So that** I can review system automation.
 
+#### US-07 – Create new rule
 * **As a** habitat operator
 * **I want to** create new automation rules
 * **So that** the system can automatically react to sensor values and interact with the environment.
 
+#### US-08 – Update rule
 * **As a** habitat operator
 * **I want to** update already existing automation rules
 * **So that** the system can respond to new conditions.
 
+#### US-09 – Delete rule
 * **As a** habitat operator
 * **I want to** delete an automation rule
 * **So that** I can remove outdated automation.
 
+#### US-10 – Disable and/or enable rule
 * **As a** habitat operator
 * **I want to** disable and/or enable an automation rule
 * **So that** I can handle in real time automation.
 
+#### US-12 – Manual Actuator control
 * **As a** habitat operator
 * **I want to** manually activate or deactivate an actuator
 * **So that** I can override automation when necessary.
 
+#### US-13 – View sensor warnings
 * **As a** habitat operator
 * **I want to** see visual warnings or alerts for REST sensors when they exceed critical thresholds or become unreachable
 * **So that** I can quickly identify and react to life-support anomalies.
 
+#### US-14 – View actuator activation history
 * **As a** habitat operator
 * **I want to** view a terminal or log showing the history of actuator state changes (both manual and rule-triggered)
 * **So that** I can trace system actions and audit the automation behavior.
 
+#### US-15 – Persist automation rules
 * **As a** system operator
 * **I want** the automation rules to be persisted in a database
 * **So that** the habitat automation logic is preserved and restored automatically after a system reboot or failure.
 
+#### US-16 – View real-time telemetry trends
 * **As a** system operator
 * **I want to** see live line charts for telemetry data (e.g., power_bus, radiation)
 * **So that** I can analyze immediate trends.
@@ -668,6 +683,7 @@ Python + Flask service that consumes selected sensor messages from RabbitMQ, mai
 
 ### USER STORIES:
 
+#### US-17 – Export sensor charts to PDF
 * **As a** system operator
 * **I want to** export and store the sensor telemetry charts as a PDF file
 * **So that** I can archive, share, and review historical telemetry reports outside the system.
