@@ -397,7 +397,7 @@ Automation engine that consumes normalized sensor/telemetry messages from Rabbit
 
 | HTTP METHOD | URL             | Description                                                                 | User Stories                                       |
 | ----------- | --------------- | --------------------------------------------------------------------------- | -------------------------------------------------- |
-| POST        | /update-rules   | Updates RabbitMQ topic subscriptions based on `action` (`add`/`remove`) and `topic`. Uses thread-safe callbacks to bind/unbind queue to `exchange_data`. | Dynamic reaction to new/removed rules/topics.      |
+| POST        | /update-rules   | Updates RabbitMQ topic subscriptions based on `action` (`add`/`remove`) and `topic`. Uses thread-safe callbacks to bind/unbind queue to `exchange_data`. | US-8 US-9 US-10      |
 
 
 * DB STRUCTURE:
